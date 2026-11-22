@@ -21,6 +21,10 @@ O romance completo em português, traduzido do francês da edição Hetzel de 18
 - **Gravuras:** Alphonse de Neuville e Édouard Riou, gravadas por Hildibrand (domínio público).
 - **Tradução:** feita pelo Claude Opus 5.5, da Anthropic, sob a direção de Marcelo Rovai.
 - **Simulador 3D:** gerado pelo Claude Opus 5.5 sob a direção de Marcelo Rovai.
-- **Versão narrada:** narrada com a voz de Marcelo Rovai.
+- **Versão narrada:** vídeo feito com o Hermes/Qwen4 e narração com o OmniVoice, a partir da voz de Marcelo Rovai, sob a direção dele.
+
+## Licença
+
+[MIT](LICENSE) © 2026 Marcelo Rovai. O texto original de Verne e as gravuras de 1871 estão em domínio público.
 
 Marcelo Rovai · [mjrovai.com](https://mjrovai.com)
