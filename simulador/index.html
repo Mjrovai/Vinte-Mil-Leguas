@@ -1,0 +1,2093 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nautilus — Vinte Mil Léguas Submarinas (modelo 3D)</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --brass:#c9a25a; --brass2:#8a6a2e; --ink:#f1e6cc; --panel:rgba(14,18,22,.82);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;overflow:hidden;background:#05080b;color:var(--ink);font-family:'EB Garamond',Georgia,serif}
+  #c{position:fixed;inset:0}
+  #labels{position:fixed;inset:0;pointer-events:none}
+  .panel{position:fixed;background:var(--panel);border:1px solid rgba(201,162,90,.45);border-radius:10px;
+    backdrop-filter:blur(6px);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+  #info{top:16px;left:16px;width:330px;max-height:calc(100% - 32px);overflow:auto;padding:16px 18px 14px}
+  h1{font-family:'Cinzel',serif;font-weight:700;letter-spacing:.12em;margin:0;font-size:26px;color:var(--brass)}
+  .sub{font-style:italic;opacity:.8;margin:2px 0 10px;font-size:15px}
+  .quote{font-style:italic;font-size:15px;line-height:1.35;border-left:2px solid var(--brass2);padding-left:10px;margin:10px 0 12px;opacity:.92}
+  table{width:100%;border-collapse:collapse;font-size:14.5px}
+  td{padding:3px 0;border-bottom:1px dotted rgba(201,162,90,.25);vertical-align:top}
+  td:last-child{text-align:right;color:#fff}
+  .sec{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.18em;color:var(--brass);margin:14px 0 6px}
+  #ctrl{bottom:16px;left:50%;transform:translateX(-50%);padding:10px 12px;display:flex;flex-wrap:wrap;gap:6px;justify-content:center;max-width:calc(100% - 32px)}
+  button{font-family:'Cinzel',serif;font-size:12px;letter-spacing:.06em;color:var(--ink);background:linear-gradient(#232a31,#151a1f);
+    border:1px solid rgba(201,162,90,.5);border-radius:6px;padding:7px 11px;cursor:pointer;transition:.15s}
+  button:hover{border-color:var(--brass);color:#fff}
+  button.on{background:linear-gradient(#6e5524,#3f2f12);border-color:var(--brass);color:#fff}
+  .grp{display:flex;gap:4px;padding-right:6px;margin-right:2px;border-right:1px solid rgba(201,162,90,.25)}
+  .grp:last-child{border-right:0}
+  .lbl{pointer-events:auto;cursor:pointer;font-family:'Cinzel',serif;font-size:11px;letter-spacing:.05em;color:#fff;
+    background:rgba(10,14,18,.78);border:1px solid var(--brass);border-radius:12px;padding:2px 8px;white-space:nowrap;
+    transform:translateY(-14px);transition:.15s}
+  .lbl:hover{background:#6e5524}
+  .lbl b{color:var(--brass);margin-right:4px}
+  .lbl.room{border-color:#7fc4d8;background:rgba(10,30,40,.8)}
+  #detail{top:16px;right:16px;width:300px;padding:14px 16px;display:none}
+  #detail h2{font-family:'Cinzel',serif;color:var(--brass);font-size:17px;margin:0 0 6px}
+  #detail p{margin:0;font-size:15px;line-height:1.4}
+  #detail .x{position:absolute;top:6px;right:10px;cursor:pointer;opacity:.7}
+  #detail{max-height:calc(100% - 32px);overflow:auto}
+  #grav{margin:12px 0 0;display:none}
+  #grav img{display:block;width:100%;max-height:44vh;object-fit:contain;background:#efe6d2;border:1px solid rgba(201,162,90,.4);cursor:zoom-in}
+  #grav figcaption{font-size:12.5px;line-height:1.35;opacity:.8;margin-top:5px}
+  #grav .gnav{display:flex;align-items:center;justify-content:space-between;margin-top:4px;font-size:12px;opacity:.85}
+  #grav .gnav button{padding:1px 9px;font-size:13px;letter-spacing:0}
+  #gravBox{position:fixed;inset:0;background:rgba(5,10,16,.92);display:none;z-index:50;cursor:zoom-out;
+    flex-direction:column;align-items:center;justify-content:center;padding:16px}
+  #gravBox img{max-width:min(92vw,900px);max-height:84vh;object-fit:contain;background:#efe6d2}
+  #gravBox div{color:#e8dcc0;font-size:14px;margin-top:8px;max-width:min(92vw,700px);text-align:center;line-height:1.4}
+  .pclose{position:absolute;top:8px;right:12px;cursor:pointer;opacity:.6;font-size:15px;line-height:1;padding:2px 4px;z-index:1}
+  .pclose:hover{opacity:1;color:var(--brass)}
+  #pilotPanel .ph{padding-right:22px}
+  #info.hide,#pilotPanel.hide,#xrList.hide{display:none !important}
+  body.info-off #toggleInfo, body.pilot-off #pilotToggle{display:block}
+  #hint{position:fixed;right:16px;bottom:16px;font-size:13px;opacity:.6;font-style:italic;text-align:right}
+  #pilotPanel{right:16px;bottom:40px;width:290px;padding:12px 14px}
+  #pilotPanel .ph{display:flex;justify-content:space-between;align-items:baseline;font-family:'Cinzel',serif;color:var(--brass);letter-spacing:.15em;font-size:13px;margin-bottom:6px}
+  #pilotPanel .ph small{font-family:'EB Garamond',serif;letter-spacing:0;font-style:italic;color:var(--ink);opacity:.6;font-size:12px}
+  #pilotPanel label{display:flex;justify-content:space-between;font-size:14px;margin-top:6px}
+  #pilotPanel output{color:#fff;font-variant-numeric:tabular-nums}
+  #pilotPanel input[type=range]{width:100%;accent-color:#c9a25a;margin:2px 0}
+  .prow{display:flex;gap:4px;margin-top:8px;flex-wrap:wrap}.prow button{flex:1;padding:6px 4px;font-size:10.5px}
+  .hud{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:10px;text-align:center}
+  .hud div{background:rgba(0,0,0,.35);border:1px solid rgba(201,162,90,.3);border-radius:6px;padding:4px 2px}
+  .hud small{display:block;font-family:'Cinzel',serif;font-size:9px;letter-spacing:.1em;color:var(--brass)}
+  .hud b{font-size:15px;font-variant-numeric:tabular-nums}
+  .note{font-size:13px;font-style:italic;opacity:.85;margin-top:8px;min-height:2.6em;line-height:1.3}
+  #pilotToggle{position:fixed;bottom:40px;right:16px;display:none;z-index:3}   /* where the pilot panel sits, clear of the detail box at the top */
+  #load{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Cinzel',serif;letter-spacing:.3em;color:var(--brass);background:#05080b;z-index:9;transition:opacity .8s}
+  #toggleInfo{position:fixed;top:16px;left:16px;display:none;z-index:3}
+  #xrList{top:16px;left:16px;width:290px;max-height:calc(100% - 32px);overflow:auto;padding:14px 14px 12px;display:none}
+  #xrList .prow{margin:8px 0 4px}
+  .xi{display:block;width:100%;text-align:left;margin:3px 0;font-family:'EB Garamond',serif;font-size:15px;letter-spacing:0;padding:5px 10px}
+  .xi.part{width:calc(100% - 16px);margin-left:16px;font-size:14px;padding:3px 10px;background:transparent;border-color:rgba(201,162,90,.22)}
+  .xi.part.on{background:linear-gradient(#6e5524,#3f2f12);border-color:var(--brass)}
+  .lbl.prop{border-color:#e6c27a;background:rgba(45,32,10,.85);font-size:10px}
+  @media (max-width:760px){ #xrList{width:auto;right:16px;max-height:40%;top:56px} #xrList.hide{display:none !important} }
+  @media (max-width:760px){
+    #info{width:auto;right:16px;max-height:40%;font-size:14px}
+    #info.hide{display:none}
+    #toggleInfo{display:block}
+    #info{top:56px}
+    #hint{display:none}
+    #pilotPanel{left:16px;right:16px;width:auto;bottom:120px}
+    #pilotPanel.hide{display:none}
+    #pilotToggle{display:block;top:16px;bottom:auto}
+    #detail{left:16px;right:16px;width:auto;top:auto;bottom:120px;max-height:55%}
+    #grav img{max-height:28vh}
+  }
+</style>
+<style>#voltar-site{position:fixed;z-index:50;font:500 13px/1 "EB Garamond",Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px}</style>
+</head>
+<body>
+<a id="voltar-site" href="../" style="top:16px;right:16px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">← Início</a>
+<div id="load">NAUTILUS · MOBILIS IN MOBILI</div>
+<canvas id="c"></canvas>
+<div id="labels"></div>
+<button id="toggleInfo">Ficha técnica</button>
+<button id="pilotToggle">Pilotagem</button>
+
+<div id="info" class="panel"><span class="pclose" data-for="info" title="Fechar o painel">✕</span>
+  <h1>NAUTILUS</h1>
+  <div class="sub">Júlio Verne · <i>Vingt mille lieues sous les mers</i> (1869–70)</div>
+  <div class="quote">“Um longo cilindro de extremidades cônicas, à maneira de um charuto” — assim o Capitão Nemo descreve a Aronnax o seu navio. Lema: <b>Mobilis in mobili</b>, “móvel no elemento móvel”.</div>
+  <div class="sec">DADOS DO ROMANCE</div>
+  <table>
+    <tr><td>Comprimento (da proa à popa)</td><td>70 m</td></tr>
+    <tr><td>Boca (diâmetro máx.)</td><td>8 m</td></tr>
+    <tr><td>Superfície</td><td>1 011,45 m²</td></tr>
+    <tr><td>Volume</td><td>1 500,2 m³</td></tr>
+    <tr><td>Deslocamento submerso</td><td>1 500 t</td></tr>
+    <tr><td>Casco</td><td>Duplo, chapas de aço</td></tr>
+    <tr><td>Propulsão</td><td>Hélice elétrica, baterias de sódio</td></tr>
+    <tr><td>Velocidade máx.</td><td>≈ 50 nós</td></tr>
+    <tr><td>Biblioteca</td><td>12 000 volumes</td></tr>
+  </table>
+  <div class="sec">FORMA DO CASCO</div>
+  <div id="shapeTxt" style="font-size:14.5px;line-height:1.4;opacity:.9"></div>
+  <div class="prow" style="margin-top:6px"><button id="bShapeV">Pelo texto de Verne</button><button id="bShapeG">Pelas ilustrações</button></div>
+  <div class="sec">MANOBRA</div>
+  <div style="font-size:14.5px;line-height:1.4;opacity:.9">Horizontal: leme comum na popa, por roda e talhas. Vertical: dois planos inclinados nos flancos, no centro de flutuação, acionados por alavancas; mais os reservatórios de lastro no fundo do casco. Experimente no painel <b>Pilotagem</b>. O medidor de profundidade usa escala comprimida: a cena desce poucos metros, mas o painel chega a ≈ 2 000 m, a profundidade média que Nemo diz atingir com os reservatórios suplementares.</div>
+  <div class="sec">COMO EXPLORAR</div>
+  <div style="font-size:14.5px;line-height:1.4;opacity:.9">Arraste para girar, role para aproximar, botão direito para deslocar. Clique nas etiquetas numeradas para ler sobre cada parte. Use <b>Raio-X</b> para ver a disposição interna aproximada.</div>
+  <div style="font-size:12.5px;opacity:.55;margin-top:10px">Modelo procedural baseado no texto de Verne e nas gravuras de Neuville/Riou (1870). Interpretações que não estão no texto: as vigias pequenas do casco, as aletas da popa, o número de pás da hélice e o mastro fixo da bandeira.</div>
+  <div style="font-size:12.5px;opacity:.55;margin-top:6px">Modelo gerado pelo Claude Opus 5.5, da Anthropic, sob a direção de Marcelo Rovai.</div>
+</div>
+
+<div id="detail" class="panel"><span class="x" id="dx">✕</span><h2 id="dt"></h2><p id="dp"></p><figure id="grav"><img id="gImg" alt=""><figcaption id="gCap"></figcaption><div class="gnav" id="gNav"><button id="gPrev">‹</button><span id="gNum"></span><button id="gNext">›</button></div></figure></div>
+<div id="gravBox"><img id="gbImg" alt=""><div id="gbCap"></div></div>
+
+<div id="ctrl" class="panel">
+  <div class="grp">
+    <button data-env="surface" class="on">Superfície</button>
+    <button data-env="under">Submerso</button>
+    <button data-env="studio">Estúdio</button>
+  </div>
+  <div class="grp">
+    <button id="bShut">Painéis do salão</button>
+    <button id="bLamp" class="on">Farol</button>
+    <button id="bFlag" class="on">Bandeira</button>
+    <button id="bShape">Casco: pelo texto</button>
+    <button id="bEngrave" title="Desenha a cena como uma gravura em madeira de 1871">Estilo: gravura</button>
+  </div>
+  <div class="grp">
+    <button id="bXray">Raio-X</button>
+    <button id="bLbl">Etiquetas</button>
+    <button id="bRot">Auto-girar</button>
+    <button id="bBattle">Preparar para o ataque</button>
+    <button id="bSound">Som: desligado</button>
+  </div>
+</div>
+<div id="pilotPanel" class="panel"><span class="pclose" data-for="pilotPanel" title="Fechar o painel">✕</span>
+  <div class="ph"><span>PILOTAGEM</span><small>Parte I, cap. XIII, “Quelques chiffres”</small></div>
+  <label>Máquina (hélice) <output id="oSpd"></output></label>
+  <input type="range" id="sSpd" min="0" max="50" step="1" value="12">
+  <label>Leme — horizontal <output id="oRud"></output></label>
+  <input type="range" id="sRud" min="-30" max="30" step="1" value="0">
+  <label>Planos inclinados — vertical <output id="oPla"></output></label>
+  <input type="range" id="sPla" min="-25" max="25" step="1" value="0">
+  <label>Reservatórios de lastro <output id="oBal"></output></label>
+  <input type="range" id="sBal" min="0" max="100" step="1" value="0">
+  <label>Cota do mergulho automático <output id="oDive"></output></label>
+  <input type="range" id="sDive" min="50" max="1500" step="10" value="300">
+  <div class="prow"><button id="bDive">Mergulhar</button></div>
+  <div class="prow"><button id="bShip">Desengatar hélice</button><button id="bCenter">Centrar</button><button id="bReset">Voltar à superfície</button></div>
+  <div class="hud"><div><small>RUMO</small><b id="hHdg">000°</b></div><div><small>PROFUND.</small><b id="hDep">0 m</b></div><div><small>INCLIN.</small><b id="hPit">0°</b></div><div><small>VELOC.</small><b id="hSpd">0 nós</b></div></div>
+  <div class="note" id="pNote"></div>
+</div>
+<div id="xrList" class="panel"><span class="pclose" data-for="xrList" title="Fechar o painel">✕</span><h1>RAIO-X</h1><div class="sub">Compartimentos e peças citados no livro</div><div class="prow"><button id="bExplode">Explodir</button><button id="bOverview">Visão geral</button></div><div id="xrItems"></div><div style="font-size:12.5px;opacity:.55;margin-top:10px">Clique num item, ou numa etiqueta no modelo, para aproximar e isolar.</div></div>
+<div id="hint">Arraste · role · clique nas etiquetas</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
+import { mergeGeometries, mergeVertices } from 'three/addons/utils/BufferGeometryUtils.js';
+
+/* ---------------- renderer / scene ---------------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({canvas, antialias:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.0;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+
+const labelRenderer = new CSS2DRenderer({element: document.getElementById('labels')});
+labelRenderer.setSize(innerWidth, innerHeight);
+
+const scene = new THREE.Scene();
+const pmrem = new THREE.PMREMGenerator(renderer);
+scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+const camera = new THREE.PerspectiveCamera(42, innerWidth/innerHeight, 0.1, 2000);
+camera.position.set(44, 15, 50);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0, 1.5, 0);
+controls.enableDamping = true;
+controls.minDistance = 2.5; controls.maxDistance = 220;
+controls.maxPolarAngle = Math.PI*0.95;
+
+const hemi = new THREE.HemisphereLight(0xcfe4ff, 0x2a2418, 0.8);
+scene.add(hemi);
+const sun = new THREE.DirectionalLight(0xfff1d6, 2.2);
+sun.position.set(60, 80, 30);
+scene.add(sun);
+const rim = new THREE.DirectionalLight(0x88aaff, 0.6);
+rim.position.set(-60, 20, -50);
+scene.add(rim);
+
+/* ---------------- procedural textures ---------------- */
+function plateTexture({w=2048,h=2048,cols=26,rows=40,base='#4a4f52',seam='#1c1f21',rivet='#8e9498',stagger=true,noise=26}={}){
+  const c = document.createElement('canvas'); c.width=w; c.height=h;
+  const g = c.getContext('2d');
+  g.fillStyle = base; g.fillRect(0,0,w,h);
+  const pw = w/cols, ph = h/rows;
+  for(let r=0;r<rows;r++){
+    const off = stagger && r%2 ? pw/2 : 0;
+    for(let k=-1;k<=cols;k++){
+      const x = k*pw+off, y=r*ph;
+      // slight tonal variation per plate (weathering)
+      const v = (Math.random()-.5)*noise;
+      g.fillStyle = `rgba(${v>0?255:0},${v>0?240:0},${v>0?220:0},${Math.abs(v)/255})`;
+      g.fillRect(x+1,y+1,pw-2,ph-2);
+      // streaks
+      g.fillStyle='rgba(90,60,30,0.05)';
+      for(let s=0;s<3;s++){ g.fillRect(x+Math.random()*pw, y, 2+Math.random()*3, ph*Math.random()); }
+      // seams
+      g.strokeStyle = seam; g.lineWidth = 3;
+      g.strokeRect(x,y,pw,ph);
+      // rivets
+      g.fillStyle = rivet;
+      const n = 6;
+      for(let i=0;i<=n;i++){
+        g.beginPath(); g.arc(x+ i*pw/n, y+5, 2.2, 0, 7); g.fill();
+        g.beginPath(); g.arc(x+5, y+ i*ph/n, 2.2, 0, 7); g.fill();
+      }
+    }
+  }
+  // fine grain
+  const id = g.getImageData(0,0,w,h), d=id.data;
+  for(let i=0;i<d.length;i+=4){ const n=(Math.random()-.5)*14; d[i]+=n; d[i+1]+=n; d[i+2]+=n; }
+  g.putImageData(id,0,0);
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.anisotropy = 8;
+  return t;
+}
+function bumpFrom(tex){ // grey bump: seams low, rivets high
+  const src = tex.image, c=document.createElement('canvas'); c.width=src.width; c.height=src.height;
+  const g=c.getContext('2d'); g.drawImage(src,0,0);
+  const id=g.getImageData(0,0,c.width,c.height), d=id.data;
+  for(let i=0;i<d.length;i+=4){ const l=(d[i]+d[i+1]+d[i+2])/3; const v=l<45?30:(l>120?255:140); d[i]=d[i+1]=d[i+2]=v; }
+  g.putImageData(id,0,0);
+  const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; return t;
+}
+
+const hullTex = plateTexture();
+const hullBump = bumpFrom(hullTex);
+function plankTexture(){
+  const w=1024,h=2048,c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d');
+  const n=9, pw=w/n;
+  for(let i=0;i<n;i++){
+    let y=-Math.random()*400;
+    while(y<h){
+      const L=500+Math.random()*700, t=Math.random();
+      g.fillStyle=`rgb(${78+t*34|0},${58+t*24|0},${40+t*14|0})`; g.fillRect(i*pw,y,pw,L);
+      for(let k=0;k<26;k++){ g.strokeStyle=`rgba(50,30,15,${0.08+Math.random()*0.14})`; g.lineWidth=1+Math.random()*1.5;
+        const xx=i*pw+Math.random()*pw; g.beginPath(); g.moveTo(xx,y); g.bezierCurveTo(xx+6,y+L*.3,xx-6,y+L*.6,xx+(Math.random()-.5)*8,y+L); g.stroke(); }
+      g.fillStyle='#2a1c10'; g.fillRect(i*pw,y,pw,3);
+      g.fillStyle='#1d140b'; for(const d of [0.25,0.75]) { g.beginPath(); g.arc(i*pw+pw*d,y+8,2.5,0,7); g.fill(); }
+      y+=L;
+    }
+    g.fillStyle='#1d140b'; g.fillRect(i*pw,0,3,h);
+  }
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; t.wrapS=t.wrapT=THREE.RepeatWrapping; t.anisotropy=8; return t;
+}
+const deckTex = plateTexture({w:1024,h:2048,cols:3,rows:22,base:'#454b50',seam:'#16191b',rivet:'#8a9196',stagger:true});
+deckTex.repeat.set(1,1);
+const deckBump = bumpFrom(deckTex);
+
+/* ---------------- materials ---------------- */
+const M = {
+  hull: new THREE.MeshStandardMaterial({map:hullTex,bumpMap:hullBump,bumpScale:0.6,metalness:0.55,roughness:0.55,color:0xb8bec4}),
+  dark: new THREE.MeshStandardMaterial({color:0x22272b,metalness:0.8,roughness:0.4}),
+  iron: new THREE.MeshStandardMaterial({color:0x5b6166,metalness:0.85,roughness:0.35}),
+  brass: new THREE.MeshStandardMaterial({color:0xc9a25a,metalness:1.0,roughness:0.28}),
+  bronze: new THREE.MeshStandardMaterial({color:0x9c6b3c,metalness:1.0,roughness:0.32}),
+  deck: new THREE.MeshStandardMaterial({map:deckTex,bumpMap:deckBump,bumpScale:0.5,metalness:0.55,roughness:0.6,color:0xb8bec4}),
+  glass: new THREE.MeshPhysicalMaterial({color:0x9fd8ff,metalness:0,roughness:0.05,transmission:0.6,transparent:true,opacity:0.55,ior:1.5,thickness:0.4,emissive:0x0a2030}),
+  lens: new THREE.MeshPhysicalMaterial({color:0xcfefff,roughness:0.02,metalness:0,clearcoat:1,transparent:true,opacity:0.7,emissive:0x113344,emissiveIntensity:0.6}),
+  salonGlass: new THREE.MeshStandardMaterial({color:0x332211,emissive:0xffb35c,emissiveIntensity:0,metalness:0.1,roughness:0.15}),
+  lamp: new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xfff3cf,emissiveIntensity:4}),
+  lanternLens: new THREE.MeshPhysicalMaterial({color:0xfff4dc,roughness:0.05,clearcoat:1,transparent:true,opacity:0.85,emissive:0xffd890,emissiveIntensity:1.2}),
+  lanternRing: new THREE.MeshStandardMaterial({color:0xfff0c0,emissive:0xffe0a0,emissiveIntensity:0.8,metalness:0.2,roughness:0.2}),
+  rope: new THREE.MeshStandardMaterial({color:0x6b5a40,roughness:0.9}),
+  wood: new THREE.MeshStandardMaterial({color:0x5a3d22,roughness:0.75,metalness:0.05}),
+};
+
+const nautilus = new THREE.Group();
+scene.add(nautilus);
+
+/* ---------------- hull ---------------- */
+// Verne, Part I ch. XIII: "an elongated cylinder with conical ends", 70 m x 8 m,
+// 1011.45 m2, 1500.2 m3. Only a ~9.8 m cylinder between two ~30.1 m cones fits all four numbers.
+// Two readings of the same book (button "Casco", stored in ?forma=; shown as "pelo texto" / "pelas ilustrações"):
+//  - "verne":    ~9.8 m cylinder + two ~30.1 m cones -> 1011.45 m2 / 1500.2 m3, Verne's own figures;
+//  - "gravuras": ~46 m cylinder + two 12 m cones, as in the Neuville/Riou engravings, where every room fits.
+const SHAPE = (()=>{ try{ return new URLSearchParams(location.search).get('forma')==='gravuras' ? 'gravuras' : 'verne'; }catch(e){ return 'verne'; } })();
+const ENG = SHAPE==='gravuras';
+const L = 35, R = 4, CYL = ENG ? 23 : 4.9;
+const XS = ENG ? -31.5 : -31.2;   // stern cut where the screw shaft leaves the hull
+const PILOT_X = ENG ? 20.5 : 11, LANTERN_X = -PILOT_X, FLAG_X = ENG ? 17.5 : 8.8;
+const DECK_HALF = ENG ? 22 : 12.8;
+function hullR(x){
+  const a = Math.abs(x);
+  if(a <= CYL) return R;
+  return R*Math.max(0, (L-a)/(L-CYL));
+}
+{
+  const pts=[]; const N=260;
+  pts.push(new THREE.Vector2(0.002, XS));
+  for(let i=0;i<=N;i++){ const x=XS+(L-XS)*i/N; pts.push(new THREE.Vector2(Math.max(hullR(x),0.002), x)); }
+  const g = new THREE.LatheGeometry(pts, 160);
+  g.rotateZ(-Math.PI/2);
+  g.rotateX(Math.PI/2); // put the texture seam underneath
+  hullTex.repeat.set(1,1);
+  const hull = new THREE.Mesh(g, M.hull);
+  hull.name='hull';
+  nautilus.add(hull);
+  window.__hull = hull;
+}
+// seam rings (strake bands)
+for(const x of [...new Set([-29,-24.5,-20,-15.5,-11,-4.9,4.9,11,15.5,20,24.5,29,-CYL,CYL])]){
+  const r = hullR(x);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(r+0.01, 0.055, 8, 140), M.iron);
+  ring.rotation.y = Math.PI/2; ring.position.x = x;
+  nautilus.add(ring); ring.userData.shell=true;
+}
+// longitudinal stringers (flank & keel) following hull
+function hullLine(angle, x0, x1, off=0.02, tube=0.07, mat=M.iron){
+  const pts=[];
+  for(let i=0;i<=80;i++){ const x=x0+(x1-x0)*i/80, r=hullR(x)+off; pts.push(new THREE.Vector3(x, Math.cos(angle)*r, Math.sin(angle)*r)); }
+  const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),160,tube,8,false), mat);
+  m.userData.shell=true; nautilus.add(m); return m;
+}
+hullLine(Math.PI, -33.2, 33, 0.06, 0.14, M.dark);         // keel
+hullLine(Math.PI/2, -31, 32, 0.0, 0.06);                 // starboard waterline belt
+hullLine(-Math.PI/2, -31, 32, 0.0, 0.06);                // port
+hullLine(Math.PI*0.78, -30, 30, 0.0, 0.045);
+hullLine(-Math.PI*0.78, -30, 30, 0.0, 0.045);
+
+/* ---------------- spur (ram) ---------------- */
+const spurGrp=new THREE.Group(); nautilus.add(spurGrp);   // moves ahead in the exploded view
+{
+  const spurPts=[]; const n=40;
+  for(let i=0;i<=n;i++){ const t=i/n; spurPts.push(new THREE.Vector2(0.75*Math.pow(1-t,1.3)+0.01, t*4.5)); }
+  const g = new THREE.LatheGeometry(spurPts, 48); g.rotateZ(-Math.PI/2);
+  const spur = new THREE.Mesh(g, new THREE.MeshStandardMaterial({color:0xaab2b8,metalness:1,roughness:0.18}));
+  spur.position.x = 30.5; spurGrp.add(spur);
+  for(const [x,r] of [[30.8,0.78],[31.5,0.62]]){
+    const c = new THREE.Mesh(new THREE.TorusGeometry(r,0.08,10,48), M.brass); c.rotation.y=Math.PI/2; c.position.x=x; spurGrp.add(c);
+  }
+  // cutting edges (upper/lower blades of the ram)
+  for(const s of [1,-1]){
+    const shape = new THREE.Shape(); shape.moveTo(0,0); shape.lineTo(4.3,0); shape.lineTo(0,0.6*s); shape.lineTo(0,0);
+    const fin = new THREE.Mesh(new THREE.ExtrudeGeometry(shape,{depth:0.06,bevelEnabled:false}), M.iron);
+    fin.position.set(30.6, 0.25*s, -0.03); spurGrp.add(fin);
+  }
+}
+
+/* ---------------- deck / platform ---------------- */
+const deckW = 3.4, dx0=-DECK_HALF, dx1=DECK_HALF;
+function deckY(x){ return R+0.12; }   // flat platform: the balustrade runs straight
+{
+  const segs=200, pos=[], uv=[], idx=[];
+  const push=(x,y,z,u,v)=>{pos.push(x,y,z);uv.push(u,v);};
+  for(let i=0;i<=segs;i++){
+    const x=dx0+(dx1-dx0)*i/segs, yt=deckY(x), r=hullR(x);
+    const ys=Math.sqrt(Math.max(r*r-(deckW/2)**2,0));
+    const v=i/segs*6;
+    push(x,yt,-deckW/2,0,v); push(x,yt,deckW/2,1,v);         // top
+    push(x,yt,-deckW/2,0,v); push(x,ys,-deckW/2,0.1,v);       // port skirt
+    push(x,yt, deckW/2,1,v); push(x,ys, deckW/2,0.9,v);       // stbd skirt
+  }
+  for(let i=0;i<segs;i++){
+    const a=i*6, b=(i+1)*6;
+    idx.push(a,b,a+1, a+1,b,b+1);
+    idx.push(a+2,a+3,b+2, b+2,a+3,b+3);
+    idx.push(a+4,b+4,a+5, a+5,b+4,b+5);
+  }
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));
+  g.setIndex(idx); g.computeVertexNormals();
+  const m = M.deck.clone(); m.side = THREE.DoubleSide;
+  const deck=new THREE.Mesh(g,m); deck.userData.shell=true; nautilus.add(deck);
+  // end plates closing the platform down to the hull
+  for(const x of [dx0,dx1]){
+    const r=hullR(x), yt=deckY(x), hw=deckW/2, sh=new THREE.Shape();
+    sh.moveTo(-hw,yt); sh.lineTo(hw,yt);
+    for(let i=0;i<=24;i++){ const z=hw-2*hw*i/24; sh.lineTo(z, Math.sqrt(Math.max(r*r-z*z,0))-0.05); }
+    sh.lineTo(-hw,yt);
+    const eg=new THREE.ShapeGeometry(sh); eg.rotateY(Math.PI/2);
+    const ep=new THREE.Mesh(eg, m); ep.position.x=x; ep.userData.shell=true; nautilus.add(ep);
+  }
+  // edge trims
+  for(const s of [-1,1]){
+    const pts=[]; for(let i=0;i<=60;i++){const x=dx0+(dx1-dx0)*i/60; pts.push(new THREE.Vector3(x,deckY(x)+0.02,s*deckW/2));}
+    nautilus.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),120,0.06,6),M.iron));
+  }
+}
+/* ---------------- cages: pilot (fore) & lantern (aft) ---------------- */
+// Shape after Neuville's engraving: low block, square plan with chamfered corners,
+// inclined walls, one large round lenticular glass per face (4), flat top with rim.
+function chamferBlock(aB,cB,aT,cT,h,y0=0){
+  const oct=(a,c,y)=>[[a,a-c],[a-c,a],[-(a-c),a],[-a,a-c],[-a,-(a-c)],[-(a-c),-a],[a-c,-a],[a,-(a-c)]].map(([x,z])=>new THREE.Vector3(x,y,z));
+  return new ConvexGeometry([...oct(aB,cB,y0),...oct(aT,cT,y0+h)]);
+}
+const helmsmanMat = new THREE.MeshStandardMaterial({color:0x3b3a36,roughness:0.9});
+const skinMat = new THREE.MeshStandardMaterial({color:0xc69a7a,roughness:0.8});
+function cage(x, kind){
+  const grp = new THREE.Group();
+  const y0 = deckY(x);
+  grp.position.set(x, y0-0.12, 0); grp.userData.y0 = y0-0.12;
+  const H=1.05, aB=0.95, aT=0.78;
+  const bodyMat = M.iron.clone(); bodyMat.color.set(0x4a5055);
+  const plinth = new THREE.Mesh(chamferBlock(1.04,0.3,1.0,0.3,0.12,-0.02), M.dark.clone());
+  const body = new THREE.Mesh(chamferBlock(aB,0.28,aT,0.22,H,0.1), bodyMat);
+  const rim = new THREE.Mesh(chamferBlock(0.84,0.24,0.8,0.23,0.09,0.1+H), M.dark.clone());
+  for(const m of [plinth,body,rim]){ m.userData.shell=true; grp.add(m); }
+  // rivets along the top rim and base
+  for(let k=0;k<4;k++){ for(let i=-3;i<=3;i++){
+    const ang=k*Math.PI/2, ca=Math.cos(ang), sa=Math.sin(ang);
+    for(const [yy,aa] of [[0.13,0.97],[0.1+H-0.04,0.795]]){
+      const r=new THREE.Mesh(new THREE.SphereGeometry(0.03,6,6),M.brass);
+      const t=i*0.17; r.position.set(ca*aa - sa*t, yy, sa*aa + ca*t); grp.add(r);
+    }
+  }}
+  // four big lenticular glasses, one per face (fore, aft, port, starboard)
+  const tilt = Math.atan((aB-aT)/H);
+  const yl = 0.1+H*0.5, al = (aB+aT)/2 + 0.01;
+  const lensMat = kind==='pilot' ? M.lens : M.lanternLens;
+  for(let k=0;k<4;k++){
+    const ang=k*Math.PI/2;
+    const n=new THREE.Vector3(Math.cos(ang)*Math.cos(tilt), Math.sin(tilt), -Math.sin(ang)*Math.cos(tilt));
+    const lg=new THREE.Group();
+    lg.add(new THREE.Mesh(new THREE.TorusGeometry(0.42,0.075,14,48), M.dark));          // thick frame
+    lg.add(new THREE.Mesh(new THREE.TorusGeometry(0.35,0.025,8,48), M.brass));           // inner bead
+    for(let i=0;i<12;i++){ const b=new THREE.Mesh(new THREE.SphereGeometry(0.028,6,6),M.brass); const a2=i/12*Math.PI*2; b.position.set(Math.cos(a2)*0.42,Math.sin(a2)*0.42,0.06); lg.add(b); }
+    const back=new THREE.Mesh(new THREE.CircleGeometry(0.36,40), new THREE.MeshStandardMaterial({color: kind==='pilot'?0x0d1a22:0x221a0d, roughness:0.4}));
+    back.position.z=-0.02; lg.add(back);
+    const dome=new THREE.Mesh(new THREE.SphereGeometry(0.4,40,20,0,Math.PI*2,0,Math.PI/2.4), lensMat);
+    dome.rotation.x=Math.PI/2; dome.scale.set(1,0.32,1); dome.position.z=-0.05; lg.add(dome);
+    if(kind!=='pilot'){ // lighthouse-style lens rings
+      for(const rr of [0.12,0.2,0.28]){ const t=new THREE.Mesh(new THREE.TorusGeometry(rr,0.012,6,40),M.lanternRing); t.position.z=0.06+0.06*(1-rr/0.4); lg.add(t); }
+    }
+    const pc=new THREE.Vector3(Math.cos(ang)*al, yl, -Math.sin(ang)*al);
+    lg.position.copy(pc); lg.lookAt(pc.clone().add(n));
+    grp.add(lg);
+  }
+  // small hatch on the roof
+  const rh=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.3,0.06,24),M.iron); rh.position.y=0.1+H+0.12; grp.add(rh);
+  const knob=new THREE.Mesh(new THREE.TorusGeometry(0.1,0.02,6,16),M.brass); knob.rotation.x=Math.PI/2; knob.position.y=0.1+H+0.17; grp.add(knob);
+  if(kind==='pilot'){
+    // helmsman stands below deck, head at the forward glass (second engraving)
+    const wheel=new THREE.Group();
+    wheel.add(new THREE.Mesh(new THREE.TorusGeometry(0.55,0.04,8,48),M.wood));
+    wheel.add(new THREE.Mesh(new THREE.TorusGeometry(0.2,0.03,8,24),M.brass));
+    for(let i=0;i<10;i++){
+      const a2=i/10*Math.PI*2;
+      const sp=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,0.72,6),M.wood);
+      sp.position.set(Math.cos(a2)*0.36,Math.sin(a2)*0.36,0); sp.rotation.z=a2-Math.PI/2; wheel.add(sp);
+      const hd=new THREE.Mesh(new THREE.CylinderGeometry(0.025,0.03,0.18,6),M.wood);
+      hd.position.set(Math.cos(a2)*0.67,Math.sin(a2)*0.67,0); hd.rotation.z=a2-Math.PI/2; wheel.add(hd);
+    }
+    wheel.add(new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.16,12).rotateX(Math.PI/2),M.brass));
+    wheel.position.set(0.1,-0.35,0); wheel.rotation.y=Math.PI/2; grp.add(wheel); grp.userData.wheel=wheel;
+    const stand=new THREE.Mesh(new THREE.BoxGeometry(0.25,0.95,0.25),M.iron); stand.position.set(0.25,-0.85,0); grp.add(stand);
+    // helmsman
+    const man=new THREE.Group();
+    const cap=(r,l,m)=>new THREE.Mesh(new THREE.CapsuleGeometry(r,l,4,10),m);
+    for(const z of [-0.12,0.12]){ const leg=cap(0.08,0.75,helmsmanMat); leg.position.set(0,-0.85,z); man.add(leg); }
+    const torso=cap(0.19,0.5,helmsmanMat); torso.position.set(0,-0.12,0); man.add(torso);
+    const head=new THREE.Mesh(new THREE.SphereGeometry(0.12,16,12),skinMat); head.position.set(0.03,0.42,0); man.add(head);
+    for(const z of [-1,1]){ const arm=cap(0.055,0.5,helmsmanMat); arm.position.set(0.25,-0.05,z*0.22); arm.rotation.z=-1.1; man.add(arm); }
+    man.position.set(-0.45,0.05,0); grp.add(man);
+    const pl=new THREE.PointLight(0x9fe0ff,1.5,3); pl.position.set(0,0.4,0); grp.add(pl);
+  } else {
+    const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.3,32,16), M.lamp); bulb.position.y=yl; grp.add(bulb);
+    const refl = new THREE.Mesh(new THREE.SphereGeometry(0.5,32,16,0,Math.PI*2,0,Math.PI/2), M.brass.clone());
+    refl.material.side=THREE.DoubleSide; refl.rotation.z = Math.PI/2; refl.position.set(-0.1,yl,0); grp.add(refl);
+  }
+  nautilus.add(grp);
+  return grp;
+}
+const pilot = cage(PILOT_X,'pilot');          // "rose at the extremity of the platform"
+const lanternCage = cage(LANTERN_X,'lantern'); // fore and aft cages; reflector behind the steersman
+
+// lantern light: spotlight shining forward + visible beam
+const lampSpot = new THREE.SpotLight(0xfff2d0, 600, 160, 0.22, 0.6, 1.6);
+lampSpot.position.set(LANTERN_X, deckY(LANTERN_X)+0.5, 0);
+lampSpot.target.position.set(60, deckY(LANTERN_X)-4, 0);
+const lampBaseY = lampSpot.position.y;
+nautilus.add(lampSpot, lampSpot.target);
+const lampGlow = new THREE.PointLight(0xfff0c8, 6, 10); lampGlow.position.copy(lampSpot.position); nautilus.add(lampGlow);
+const beamMat = new THREE.ShaderMaterial({
+  transparent:true, depthWrite:false, blending:THREE.AdditiveBlending, side:THREE.DoubleSide,
+  uniforms:{uOp:{value:0.25}, uTime:{value:0}},
+  vertexShader:`varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+    void main(){ vUv=uv; vec4 mv=modelViewMatrix*vec4(position,1.); vN=normalize(normalMatrix*normal); vV=normalize(-mv.xyz); gl_Position=projectionMatrix*mv; }`,
+  fragmentShader:`uniform float uOp; uniform float uTime; varying vec2 vUv; varying vec3 vN; varying vec3 vV;
+    void main(){ float edge=pow(abs(dot(vN,vV)),1.6); float fall=pow(1.-vUv.y,1.4)*smoothstep(0.,.04,vUv.y);
+      fall = pow(vUv.y,1.6);
+      float a=edge*fall*uOp*(0.9+0.1*sin(uTime*3.+vUv.y*20.)); gl_FragColor=vec4(1.,.93,.75,a); }`
+});
+const beam = new THREE.Mesh(new THREE.CylinderGeometry(0.35, 9, 60, 48, 1, true), beamMat);
+beam.geometry.translate(0,-30,0); beam.geometry.rotateZ(Math.PI/2);
+beam.position.copy(lampSpot.position); beam.position.x += 0.4;
+beam.rotation.z = -0.045;
+nautilus.add(beam);
+
+/* ---------------- hatches ---------------- */
+function hatch(x){
+  const g=new THREE.Group(); g.position.set(x,deckY(x)+0.01,0);
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.62,0.66,0.18,40),M.iron).translateY(0.09));
+  g.add(new THREE.Mesh(new THREE.CylinderGeometry(0.52,0.55,0.12,40),M.dark).translateY(0.22));
+  const w=new THREE.Group(); w.position.y=0.36;
+  w.add(new THREE.Mesh(new THREE.TorusGeometry(0.28,0.028,8,30).rotateX(Math.PI/2),M.brass));
+  for(let i=0;i<4;i++){ const s=new THREE.Mesh(new THREE.CylinderGeometry(0.018,0.018,0.56,6),M.brass); s.rotation.z=Math.PI/2; s.rotation.y=i*Math.PI/4; w.add(s); }
+  w.add(new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,0.16,8),M.brass).translateY(-0.06));
+  g.add(w);
+  for(let i=0;i<12;i++){ const a=i/12*Math.PI*2; const b=new THREE.Mesh(new THREE.SphereGeometry(0.035,6,6),M.brass); b.position.set(Math.cos(a)*0.58,0.19,Math.sin(a)*0.58); g.add(b); }
+  nautilus.add(g); return g;
+}
+const hatchFwd = hatch(6.2), hatchAft = hatch(-8.6), hatchMid = hatch(-6.6); // central staircase is aft of the boat well
+
+/* ---- iron balustrade around the platform; lowered before the attack (Part II ch. XXI, "A Hecatomb") ---- */
+const railing = new THREE.Group(); nautilus.add(railing);
+const railShown = true;   // the balustrade is lowered only when preparing for the attack
+{
+  const xs=dx0+0.3, xe=dx1-0.3, zi=deckW/2-0.08, hts=[0.5,1.0];
+  const postG=new THREE.CylinderGeometry(0.035,0.04,1.02,8);
+  const pts=[]; // closed loop: port side (fore→aft), aft end, starboard side (aft→fore), fore end
+  for(let x=xe;x>xs;x-=1.0) pts.push([x,-zi]);
+  for(let z=-zi;z<zi;z+=0.81) pts.push([xs,z]);
+  for(let x=xs;x<xe;x+=1.0) pts.push([x,zi]);
+  for(let z=zi;z>-zi;z-=0.81) pts.push([xe,z]);
+  for(const [x,z] of pts){
+    const y=deckY(x);
+    const p=new THREE.Mesh(postG,M.iron); p.position.set(x,y+0.51,z); railing.add(p);
+    const f=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,0.04,10),M.iron); f.position.set(x,y+0.02,z); railing.add(f);
+  }
+  for(const h of hts){
+    const curve=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,deckY(x)+h,z)),true,'catmullrom',0.05);
+    railing.add(new THREE.Mesh(new THREE.TubeGeometry(curve,320,0.028,6),M.iron));
+  }
+}
+
+/* ---- the electrified stair-rail at the hatch (ch. "Captain Nemo's Thunderbolt") ---- */
+const elecMat = new THREE.MeshStandardMaterial({color:0xb87333,metalness:1,roughness:0.3,emissive:0x5fb8ff,emissiveIntensity:0});
+const stairRail = new THREE.Group(); nautilus.add(stairRail);
+{
+  const x=-6.6, y=deckY(x);
+  for(const z of [-0.5,0.5]){
+    const a=new THREE.Vector3(x-0.45,y+0.25,z), b=new THREE.Vector3(x-0.2,y+1.05,z*1.05), c=new THREE.Vector3(x+0.35,y+1.05,z*1.05), d=new THREE.Vector3(x+0.6,y+0.25,z);
+    stairRail.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3([a,b,c,d]),40,0.03,8),elecMat));
+    for(const q of [a,d]){ const k=new THREE.Mesh(new THREE.SphereGeometry(0.06,10,8),M.brass); k.position.copy(q); stairRail.add(k); }
+  }
+  const spark=new THREE.PointLight(0x7fc8ff,0,3); spark.position.set(x,y+1.0,0); stairRail.add(spark); stairRail.userData.spark=spark;
+}
+
+/* ---------------- dinghy (canot) set in its recess ---------------- */
+{
+  const g = new THREE.Group(); const x=-1.5;
+  // recess rim
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(1,0.07,8,48), M.brass);
+  rim.scale.set(3.9,0.62,1); rim.rotation.x=Math.PI/2; rim.position.set(x,deckY(x)+0.05,0); nautilus.add(rim);
+  const pts=[]; for(let i=0;i<=40;i++){ const t=i/40; pts.push(new THREE.Vector2(0.58*Math.pow(Math.sin(Math.PI*t),0.7)+0.001,(t-0.5)*7.4)); }
+  const geo=new THREE.LatheGeometry(pts,40); geo.rotateZ(-Math.PI/2);
+  const boat=new THREE.Mesh(geo, new THREE.MeshStandardMaterial({map:plateTexture({w:512,h:512,cols:8,rows:10,base:'#3f4447'}),metalness:0.6,roughness:0.5}));
+  boat.scale.set(1,0.55,1); g.add(boat);
+  // bolts along it
+  for(let i=-3;i<=3;i++){ for(const s of [-1,1]){ const b=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,0.1,8),M.brass); b.position.set(i*0.95,0.08,s*0.5*Math.pow(Math.sin(Math.PI*(i/7.4+0.5)),0.7)); g.add(b);} }
+  // little hatch on dinghy
+  const dh = new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.22,0.08,20), M.brass); dh.position.set(0.6,0.32,0); g.add(dh);
+  g.position.set(x, deckY(x)+0.05, 0);
+  nautilus.add(g);
+}
+
+/* ---------------- flag mast with black flag & golden N ---------------- */
+let flag, flagGeo, flagBase;
+{
+  const x=FLAG_X, y=deckY(x);
+  const mast=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.08,4.2,10),M.iron); mast.position.set(x,y+2.1,0); nautilus.add(mast);
+  const ball=new THREE.Mesh(new THREE.SphereGeometry(0.12,12,10),M.brass); ball.position.set(x,y+4.25,0); nautilus.add(ball);
+  const foot=new THREE.Mesh(new THREE.CylinderGeometry(0.22,0.28,0.2,16),M.brass); foot.position.set(x,y+0.1,0); nautilus.add(foot);
+  const c=document.createElement('canvas'); c.width=512; c.height=320; const g=c.getContext('2d');
+  g.fillStyle='#0b0b0c'; g.fillRect(0,0,512,320);
+  g.fillStyle='#d8b25a'; g.font='bold 230px Georgia,serif'; g.textAlign='center'; g.textBaseline='middle'; g.fillText('N',256,172);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
+  flagGeo=new THREE.PlaneGeometry(2.2,1.38,24,12); flagGeo.translate(-1.1,0,0);
+  flagBase=flagGeo.attributes.position.array.slice();
+  flag=new THREE.Mesh(flagGeo,new THREE.MeshStandardMaterial({map:t,side:THREE.DoubleSide,roughness:0.9}));
+  flag.position.set(x-0.05,y+3.45,0); nautilus.add(flag);
+  flag.userData.top=y+3.45; flag.userData.bottom=y+0.9;
+}
+
+/* ---------------- salon windows with sliding iron panels ---------------- */
+const shutters=[]; let shutterOpen=0, shutterTarget=0;
+const salonLights=[];
+{
+  const xc=15, yc=-0.4;
+  for(const s of [1,-1]){
+    const r=hullR(xc); const z=Math.sqrt(r*r-yc*yc)*s;
+    const g=new THREE.Group(); g.position.set(xc,yc,z);
+    // face outward, tangent to the bow cone (the hull narrows toward the bow here)
+    const ca=Math.abs(xc)>CYL ? Math.atan(R/(L-CYL)) : 0;   // tangent to the cone, or to the cylinder
+    const nrm=new THREE.Vector3(0,yc,z).normalize().multiplyScalar(Math.cos(ca)).add(new THREE.Vector3(Math.sin(ca),0,0)).normalize();
+    g.position.addScaledVector(nrm,0.14); // glass sits 0.06 behind the frame: keep it in front of the hull skin
+    g.lookAt(g.position.clone().add(nrm));
+    // frame
+    const frame=new THREE.Mesh(new THREE.TorusGeometry(1,0.09,12,64),M.brass); frame.scale.set(1.5,0.82,1); g.add(frame);
+    const frame2=new THREE.Mesh(new THREE.TorusGeometry(1.1,0.05,10,64),M.iron); frame2.scale.set(1.5,0.82,1); frame2.position.z=-0.02; g.add(frame2);
+    // glass
+    const gl=new THREE.Mesh(new THREE.CircleGeometry(1,64),M.salonGlass); gl.scale.set(1.5,0.82,1); gl.position.z=-0.06; g.add(gl);
+    // mullion
+    const mul=new THREE.Mesh(new THREE.BoxGeometry(0.06,1.64,0.06),M.brass); mul.position.z=0.0; g.add(mul);
+    // rivets
+    for(let i=0;i<24;i++){ const a=i/24*Math.PI*2; const b=new THREE.Mesh(new THREE.SphereGeometry(0.045,6,6),M.brass); b.position.set(Math.cos(a)*1.5*1.2,Math.sin(a)*0.82*1.2,0); g.add(b); }
+    // two sliding iron half-panels
+    for(const side of [-1,1]){
+      const sh=new THREE.Mesh(new THREE.BoxGeometry(1.62,1.9,0.08), M.hull.clone());
+      sh.material.map = hullTex.clone(); sh.material.map.repeat.set(0.06,0.06); sh.material.map.needsUpdate=true;
+      sh.position.set(side*0.8,0,0.1); sh.userData={side,shell:true}; g.add(sh); shutters.push(sh);
+      const handle=new THREE.Mesh(new THREE.TorusGeometry(0.12,0.02,6,16),M.brass); handle.position.set(-side*0.6,0,0.06); sh.add(handle);
+    }
+    // rails
+    for(const yy of [1.0,-1.0]){ const rl=new THREE.Mesh(new THREE.BoxGeometry(6.6,0.07,0.07),M.iron); rl.position.set(0,yy,0.05); g.add(rl); }
+    nautilus.add(g);
+    const pl=new THREE.PointLight(0xffb060,0,14,1.5); pl.position.set(xc,yc,z*0.6); nautilus.add(pl); salonLights.push(pl);
+  }
+}
+
+/* ---------------- small lenticular portholes ---------------- */
+{
+  const ports=[[26,0.3],[22.5,0.5],[-8,1.2],[-12,1.0],[-16,0.8],[6.5,1.5],[8.5,1.5]];
+  for(const [x,y] of ports) for(const s of [1,-1]){
+    const r=hullR(x); if(r<y+0.4) continue;
+    const z=Math.sqrt(r*r-y*y)*s;
+    const g=new THREE.Group(); g.position.set(x,y,z); g.lookAt(new THREE.Vector3(x,y*1.3,z*1.3));
+    g.add(new THREE.Mesh(new THREE.TorusGeometry(0.24,0.05,8,24),M.brass));
+    const l=new THREE.Mesh(new THREE.SphereGeometry(0.22,16,8,0,Math.PI*2,0,Math.PI/3),M.lens); l.rotation.x=Math.PI/2; g.add(l);
+    nautilus.add(g);
+  }
+}
+
+/* ---------------- inclined planes (hydroplanes) ---------------- */
+const planes=[];
+{
+  for(const s of [1,-1]){
+    const piv=new THREE.Group(); const x=2, r=hullR(x);
+    piv.position.set(x,-0.2,s*(r-0.2));
+    const shape=new THREE.Shape();
+    shape.moveTo(-2.2,0); shape.bezierCurveTo(-2.0,2.0,1.0,3.2,2.3,3.0); shape.lineTo(2.3,0); shape.lineTo(-2.2,0);
+    const geo=new THREE.ExtrudeGeometry(shape,{depth:0.14,bevelEnabled:true,bevelSize:0.05,bevelThickness:0.05,bevelSegments:2,curveSegments:24});
+    geo.translate(0,0,-0.07); geo.rotateX(Math.PI/2*s);   // span points outward from the hull
+    const p=new THREE.Mesh(geo,M.iron); piv.add(p);
+    // brass leading/trailing reinforcement and rivets
+    const edge=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,3.0,10),M.brass); edge.rotation.x=Math.PI/2; edge.position.set(2.3,0,s*1.5); piv.add(edge);
+    for(let i=0;i<6;i++){ const b=new THREE.Mesh(new THREE.SphereGeometry(0.05,6,6),M.brass); b.position.set(-1.6+i*0.75,0.1,s*0.35); piv.add(b); }
+    const axle=new THREE.Mesh(new THREE.CylinderGeometry(0.2,0.2,1.0,16),M.brass); axle.rotation.x=Math.PI/2; piv.add(axle);
+    const boss=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.5,0.3,24),M.iron); boss.rotation.x=Math.PI/2; boss.position.z=-s*0.05; piv.add(boss);
+    nautilus.add(piv); planes.push(piv);
+  }
+}
+
+/* ---------------- stern: propeller, rudder ---------------- */
+const sternGrp=new THREE.Group(); nautilus.add(sternGrp);   // moves aft in the exploded view
+const prop = new THREE.Group();
+{
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.2,1.8,16),M.bronze); shaft.rotation.z=Math.PI/2; shaft.position.x=XS+0.1; sternGrp.add(shaft);
+  const hub=new THREE.Mesh(new THREE.SphereGeometry(0.42,24,16),M.bronze); hub.scale.set(1.5,1,1);
+  prop.add(hub);
+  const bladeShape=new THREE.Shape();
+  bladeShape.moveTo(0,0); bladeShape.bezierCurveTo(0.7,0.4,0.9,1.6,0.35,2.5); bladeShape.bezierCurveTo(0,2.7,-0.5,2.2,-0.45,1.2); bladeShape.bezierCurveTo(-0.4,0.6,-0.2,0.2,0,0);
+  const bg=new THREE.ExtrudeGeometry(bladeShape,{depth:0.06,bevelEnabled:true,bevelSize:0.04,bevelThickness:0.03,bevelSegments:2,curveSegments:20});
+  bg.translate(0,0.25,-0.03); bg.scale(1.1,1.1,1); // ≈ 6 m diameter, as in the book
+  for(let i=0;i<4;i++){
+    const b=new THREE.Mesh(bg,M.bronze);
+    const holder=new THREE.Group(); holder.rotation.x=i*Math.PI/2;
+    b.rotation.y=Math.PI/2+0.55; // pitch
+    holder.add(b); prop.add(holder);
+  }
+  const cone=new THREE.Mesh(new THREE.ConeGeometry(0.32,0.8,20),M.bronze); cone.rotation.z=Math.PI/2; cone.position.x=-0.6; prop.add(cone);
+  prop.position.x=XS-0.6; sternGrp.add(prop);
+  // rudder frame
+  const rud=new THREE.Group(); rud.position.x=XS-2.0;
+  const rs=new THREE.Shape(); rs.moveTo(0,-2.6); rs.lineTo(-1.6,-2.2); rs.bezierCurveTo(-1.95,-0.8,-1.95,0.8,-1.6,2.2); rs.lineTo(0,2.6); rs.lineTo(0,-2.6);
+  const rg=new THREE.ExtrudeGeometry(rs,{depth:0.14,bevelEnabled:true,bevelSize:0.04,bevelThickness:0.04,bevelSegments:2}); rg.translate(0,0,-0.07);
+  const rudder=new THREE.Mesh(rg,M.iron); rud.add(rudder);
+  const post=new THREE.Mesh(new THREE.CylinderGeometry(0.1,0.1,5.6,10),M.brass); rud.add(post);
+  sternGrp.add(rud);
+  window.__rudder=rud;
+  // frame bars linking hull to rudder post (top & bottom)
+  for(const yy of [2.6,-2.6]){
+    const a=new THREE.Vector3(-26,Math.sign(yy)*hullR(-26)*0.85,0), b=new THREE.Vector3(XS-2.0,yy,0);
+    const bar=new THREE.Mesh(new THREE.CylinderGeometry(0.09,0.12,a.distanceTo(b),10),M.iron);
+    bar.position.copy(a).lerp(b,0.5); bar.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),b.clone().sub(a).normalize());
+    sternGrp.add(bar);
+    const fin=new THREE.Shape(); fin.moveTo(0,0); fin.lineTo(-8.4,0); fin.lineTo(-8.4,0.08*Math.sign(yy)); fin.lineTo(0,(hullR(-31)*0.85-0.2)*Math.sign(yy)*-1+0);
+  }
+  // small stern fins (stabilisers)
+  for(const s of [1,-1]){
+    const fs=new THREE.Shape(); fs.moveTo(0,0); fs.lineTo(-3.2,0); fs.lineTo(-3.4,1.6); fs.lineTo(-1.2,0.6); fs.lineTo(0,0);
+    const fg=new THREE.ExtrudeGeometry(fs,{depth:0.08,bevelEnabled:false});
+    const f=new THREE.Mesh(fg,M.iron); f.rotation.x=-Math.PI/2*s; f.position.set(-26.5,0,s*hullR(-26.5)*0.9); sternGrp.add(f);
+  }
+}
+
+/* ---------------- X-ray: approximate interior layout ---------------- */
+const rooms = new THREE.Group(); rooms.visible=false; nautilus.add(rooms);
+const roomMeshes=[], xrItems=[];   // xrItems feeds the X-ray list panel
+const roomDefs = [
+  // [name, x0, x1, color, desc]  — x = metres from the centre, + toward the bow
+  ['Reservatório de ar', 27.5, 33.5, 0x6aa0c0, 'Com 7,5 m, vai até a proa. A eletricidade move as bombas que armazenam ar nesses reservatórios e permitem prolongar as imersões.'],
+  ['Camarote de Aronnax', 25, 27.5, 0x9fb8a0, 'Com 2,5 m: um quarto elegante, com cama, toucador e outros móveis.'],
+  ['Camarote de Nemo', 20, 25, 0xa8957a, 'Com 5 m e aspecto severo, quase monástico: cama de ferro, mesa, alguns objetos de toalete. Nas paredes, os instrumentos de navegação: manômetro, termômetro, barômetro, bússola, sextante, cronômetros.'],
+  ['Salão-museu', 10, 20, 0xd9a45a, 'Com 10 m de comprimento, 6 de largura e 5 de altura (com o casco “pelo texto” elas não cabem neste trecho cônico, uma incoerência do próprio Verne; com o casco “pelas ilustrações”, cabem). Quadros de mestres, conchas, corais, pérolas e o órgão de Nemo. Pelas janelas laterais observa-se o fundo do mar.'],
+  ['Biblioteca', 5, 10, 0xb68a5a, 'Com 5 m: estantes de palissandro negro com incrustações de cobre, divãs de couro marrom e 12 000 volumes.'],
+  ['Sala de jantar', 0, 5, 0xc97d5a, 'Com 5 m, separada da biblioteca por uma antepara estanque. Aparadores de carvalho com incrustações de ébano, faianças, porcelanas e cristais.'],
+  ['Poço central', -2, 0, 0x7a8c99, 'Entre duas anteparas, uma escada de ferro sobe até a escotilha da canoa. Logo atrás fica a escada central que leva à plataforma.'],
+  ['Ned Land e Conseil', -4, -2, 0x9fb8a0, 'Cabine de 2 m onde ficam os dois companheiros de Aronnax.'],
+  ['Cozinha, despensas e banho', -9.5, -4, 0x8a9cb0, 'Cozinha de 3 m entre as grandes despensas: a eletricidade faz todo o cozimento e destila a água do mar. Ao lado, um banheiro com água quente e fria.'],
+  ['Tripulação', -14.5, -9.5, 0x8f86a8, 'Alojamento de 5 m. A porta estava fechada, e Aronnax não pôde saber quantos homens havia a bordo.'],
+  ['Sala de máquinas', -31, -14.5, 0xb05a4a, 'No livro tem 20 m (aqui um pouco menos, por causa da popa). Uma parte produz a eletricidade com elementos de Bunsen; a outra a transmite, por grandes eletroímãs, alavancas e engrenagens, ao eixo da hélice.'],
+];
+for(const [name,x0,x1,col,desc] of roomDefs){
+  const len=x1-x0, xm=(x0+x1)/2;
+  const rg=new THREE.CylinderGeometry(Math.max(hullR(x1)*0.8,0.08), Math.max(hullR(x0)*0.8,0.08), len-0.25, 16, 1);
+  rg.rotateZ(-Math.PI/2);
+  const box=new THREE.Mesh(rg,
+    new THREE.MeshStandardMaterial({color:col,transparent:true,opacity:0.55,emissive:col,emissiveIntensity:0.25,roughness:0.6,depthWrite:false}));
+  box.position.set(xm,-0.1,0); rooms.add(box);
+  const edges=new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry,25),new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:0.5}));
+  edges.position.copy(box.position); rooms.add(edges); roomMeshes.push({box,edges,name});
+  const d=document.createElement('div'); d.className='lbl room'; d.textContent=name;
+  d.onclick=()=>{ show(name,desc); focusOn(o,11,name); }; xrItems.push({name,kind:'room',x:xm,el:d});
+  const o=new CSS2DObject(d); o.position.set(xm,-0.1,0); o.userData.room=true; o.visible=false; rooms.add(o);
+}
+// ballast reservoirs in the lower part of the hull (ch. XII)
+const ballastWater=[];
+for(const [x0,x1] of [[-11,-5],[-4.5,4.5],[5,11]]){
+  const len=x1-x0, xm=(x0+x1)/2;
+  const shell=new THREE.Mesh(new THREE.BoxGeometry(len-0.4,1.0,1.8),new THREE.MeshStandardMaterial({color:0x9fd8ff,transparent:true,opacity:0.12,depthWrite:false}));
+  shell.position.set(xm,-2.2,0); shell.userData.ballast=true; rooms.add(shell);
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(shell.geometry),new THREE.LineBasicMaterial({color:0x7fd4ff}));
+  e.position.copy(shell.position); e.userData.ballast=true; rooms.add(e);
+  const wg=new THREE.BoxGeometry(len-0.5,0.9,1.7); wg.translate(0,0.45,0);
+  const w=new THREE.Mesh(wg,new THREE.MeshStandardMaterial({color:0x1f7fd0,transparent:true,opacity:0.75,emissive:0x0a3a70,emissiveIntensity:0.6}));
+  w.position.set(xm,-2.65,0); w.userData.ballast=true; rooms.add(w); ballastWater.push(w);
+}
+{ const d=document.createElement('div'); d.className='lbl room'; d.textContent='Reservatórios de lastro'; xrItems.push({name:'Reservatórios de lastro',kind:'bottom',x:0,el:d});
+  d.onclick=()=>{ focusOn(o,16,null); show('Reservatórios de lastro','Na parte inferior do casco. Nemo abre as torneiras e eles se enchem: o Nautilus afunda até ficar rente à superfície. Reservatórios suplementares dão o peso extra para descer mais. Para subir, bombas potentíssimas expulsam a água.') };
+  const o=new CSS2DObject(d); o.position.set(0,-2.3,0); o.userData.room=true; o.userData.ballast=true; o.visible=false; rooms.add(o); }
+/* ---------------- X-ray: objects named in the book ---------------- */
+const PM = {
+  wood: new THREE.MeshStandardMaterial({color:0x8a5a30,roughness:0.7,emissive:0x2a1608,emissiveIntensity:0.6}),
+  iron: new THREE.MeshStandardMaterial({color:0x9aa3aa,metalness:0.6,roughness:0.4,emissive:0x1a2228,emissiveIntensity:0.6}),
+  brass: new THREE.MeshStandardMaterial({color:0xe0b860,metalness:0.8,roughness:0.3,emissive:0x3a2a08,emissiveIntensity:0.7}),
+  glass: new THREE.MeshStandardMaterial({color:0xbfe8ff,transparent:true,opacity:0.45,emissive:0x2a5a70,emissiveIntensity:0.5,depthWrite:false}),
+  cloth: new THREE.MeshStandardMaterial({color:0xd8d0c0,roughness:0.9,emissive:0x302a20,emissiveIntensity:0.5}),
+};
+const fy = x => -0.1 - Math.min(hullR(x)*0.8*0.55, 1.45);      // floor level inside the X-ray rooms
+const wallZ = x => Math.max(hullR(x)*0.8*0.78 - 0.35, 0.3);   // just inside the room wall
+const B=(w,h,d,mat,x,y,z)=>{ const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat); m.position.set(x,y,z); rooms.add(m); return m; };
+const C=(r,h,mat,x,y,z,axis)=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,h,14),mat);
+  if(axis==='x') m.rotation.z=Math.PI/2; if(axis==='z') m.rotation.x=Math.PI/2; m.position.set(x,y,z); rooms.add(m); return m; };
+function propLabel(name,desc,x,y,z,group){
+  const d=document.createElement('div'); d.className='lbl room prop'; d.textContent=name;
+  const o=new CSS2DObject(d); o.position.set(x,y,z); o.userData.room=true; o.visible=false; rooms.add(o);
+  d.onclick=()=>{ show(name,desc); focusOn(o,6,null); };
+  if(group==='deck') o.userData.noExplode=true;
+  xrItems.push({name,kind:'part',x,group,el:d});
+}
+function ladder(x,y0,y1){ for(const s of [-0.25,0.25]) C(0.03,y1-y0,PM.iron,x,(y0+y1)/2,s); for(let y=y0+0.3;y<y1;y+=0.35) C(0.02,0.5,PM.iron,x,y,0,'z'); }
+// salon: piano-organ and glass cases
+{ const x=18.5, f=fy(x), z=-wallZ(x);
+  B(1.8,1.0,0.6,PM.wood,x,f+0.5,z); B(1.8,0.08,0.35,PM.cloth,x,f+0.85,z+0.4);
+  for(let i=0;i<9;i++){ const h=0.8+(i%5)*0.18; C(0.05,h,PM.brass,x-0.8+i*0.2,f+1.0+h/2,z-0.1); }
+  propLabel('Piano-órgão','Um grande piano-órgão ocupa um dos painéis do salão, coberto de partituras de Weber, Rossini, Mozart, Beethoven, Haydn, Meyerbeer, Wagner, Gounod e outros.',x,f+2.3,z); }
+{ const x=12.5, f=fy(x);
+  for(const dx of [-1.2,1.2]){ B(1.6,0.8,0.8,PM.wood,x+dx,f+0.4,0); B(1.6,0.5,0.8,PM.glass,x+dx,f+1.05,0);
+    for(let i=0;i<4;i++){ const sh=new THREE.Mesh(new THREE.SphereGeometry(0.09,8,6),PM.cloth); sh.position.set(x+dx-0.55+i*0.37,f+0.92,i%2?0.15:-0.15); rooms.add(sh); } }
+  propLabel('Vitrines','Sob vitrines presas por rebites de cobre, a coleção de história natural de Nemo: zoófitos, conchas, corais, pérolas. Nenhum museu da Europa tinha coleção igual, diz Aronnax.',x,f+1.7,0); }
+// library: central table and ebony shelves
+{ const x=7.5, f=fy(x), w=wallZ(x);
+  B(2.4,0.08,1.2,PM.wood,x,f+0.8,0); for(const [a,b] of [[-1,-0.5],[1,-0.5],[-1,0.5],[1,0.5]]) B(0.08,0.8,0.08,PM.wood,x+a,f+0.4,b);
+  for(const s2 of [-1,1]){ B(4.2,1.9,0.4,PM.wood,x,f+0.95,s2*w); for(let k=0;k<4;k++) B(4.0,0.04,0.42,PM.brass,x,f+0.3+k*0.45,s2*w); }
+  propLabel('Estantes e mesa','No centro, uma mesa imensa coberta de brochuras e jornais já antigos; nas paredes, estantes de palissandro negro com incrustações de cobre, terminando em divãs de couro. Quatro globos de luz fosca iluminam a sala.',x,f+2.3,0); }
+// dining room: table and sideboards at both ends
+{ const x=2.5, f=fy(x);
+  B(2.6,0.08,1.2,PM.cloth,x,f+0.78,0); for(const [a,b] of [[-1.1,-0.5],[1.1,-0.5],[-1.1,0.5],[1.1,0.5]]) B(0.08,0.76,0.08,PM.wood,x+a,f+0.38,b);
+  for(const dx of [-2.0,2.0]) B(0.5,1.7,2.2,PM.wood,x+dx,f+0.85,0);
+  propLabel('Mesa e aparadores','Uma mesa ricamente posta no centro e, nas duas extremidades, aparadores de carvalho com incrustações de ébano, cheios de faianças, porcelanas e cristais.',x,f+2.0,0); }
+// Nemo's room: iron bed and instruments
+{ const x=22.5, f=fy(x), w=wallZ(x);
+  B(2.0,0.35,0.9,PM.iron,x,f+0.35,-w+0.2); B(1.9,0.12,0.8,PM.cloth,x,f+0.58,-w+0.2); B(0.8,0.06,0.6,PM.wood,x-0.2,f+0.75,w-0.3);
+  for(let i=0;i<6;i++){ const d=new THREE.Mesh(new THREE.CylinderGeometry(0.16,0.16,0.04,18),PM.brass); d.rotation.x=Math.PI/2; d.position.set(x-1.0+i*0.4,f+1.5+(i%2)*0.4,w); rooms.add(d); }
+  propLabel('Cama e instrumentos','Uma pequena cama de ferro, uma mesa, alguns objetos de toalete, luz de uma claraboia. Nas paredes, os instrumentos: termômetro, barômetro, higrômetro, bússola, sextante, cronômetros, o manômetro que dá a profundidade e o mostrador ligado à hélice que dá a velocidade.',x,f+2.4,0); }
+// Aronnax's room
+{ const x=26.2, f=fy(x), w=wallZ(x);
+  B(1.9,0.3,0.85,PM.wood,x,f+0.3,-w+0.15); B(1.8,0.1,0.75,PM.cloth,x,f+0.5,-w+0.15); B(0.6,0.8,0.4,PM.wood,x,f+0.4,w-0.1);
+  propLabel('Cama de Aronnax','Um quarto elegante, com cama, toucador e outros móveis. Com o casco “pelo texto”, aqui ele tem só ≈ '+(2*hullR(26.2)).toFixed(1).replace('.',',')+' m de diâmetro.',x,f+1.6,0); }
+// central well: iron ladder up to the boat; central staircase to the platform
+{ const x=-0.9; ladder(x,fy(x),deckY(x)-0.1);
+  propLabel('Escada da canoa','No poço central, entre duas anteparas, uma escada de ferro presa à antepara sobe até a escotilha que coincide com a da canoa.',x,deckY(x)-1.2,0); }
+{ const x=-6.6; ladder(x,fy(x),deckY(x)-0.1);
+  propLabel('Escada central','A escada de degraus de ferro que leva à plataforma. Foi no corrimão dela que os papuas levaram choque. A posição exata é interpretação: a canoa ocupa o centro da plataforma.',x,deckY(x)-1.2,0); }
+// kitchen
+{ const x=-8.3, f=fy(x), w=wallZ(x);
+  B(1.4,0.9,0.7,PM.iron,x,f+0.45,-w+0.4); C(0.3,1.2,PM.brass,x+0.3,f+0.6,w-0.4); C(0.05,0.8,PM.brass,x+0.3,f+1.4,w-0.4);
+  propLabel('Fogões e destilador','A eletricidade, melhor que o gás, faz todo o cozimento: aquece esponjas de platina sob os fogões e um aparelho de destilação que fornece água potável.',x,f+1.9,0); }
+// arsenal and wardrobe: a dozen diving suits on the partition
+{ const x=-14.2, f=fy(x), w=wallZ(x), n=12;
+  for(let i=0;i<n;i++){ const z=-w+0.2+(2*w-0.4)*i/(n-1);
+    const suit=new THREE.Mesh(new THREE.CapsuleGeometry(0.1,0.9,4,8),PM.cloth); suit.position.set(x,f+1.0,z); rooms.add(suit);
+    const h=new THREE.Mesh(new THREE.SphereGeometry(0.13,10,8),PM.brass); h.position.set(x,f+1.72,z); rooms.add(h); }
+  propLabel('Escafandros','Perto da sala de máquinas, uma cela que é o arsenal e o vestiário do Nautilus: uma dúzia de escafandros Rouquayrol pendurados na antepara, e os fuzis de ar comprimido que disparam balas elétricas.',x,f+2.3,0); }
+// engine room: Bunsen elements, electromagnets, screw shaft
+{ for(let i=0;i<5;i++) for(const s2 of [-1,1]){ const x=-16.5-i*1.3, f=fy(x), w=wallZ(x), k=Math.min(1,hullR(x)/2.6), zz=s2*Math.max(w-0.5*k,0.35*k);   // smaller where the hull narrows
+    B(1.0*k,1.0*k,0.8*k,PM.iron,x,f+0.5*k,zz); C(0.06,0.3*k,PM.brass,x,f+1.0*k+0.15*k,zz); }
+  propLabel('Elementos de Bunsen','A primeira parte da sala de máquinas produz a eletricidade: elementos de Bunsen, poucos mas grandes e fortes, alimentados com o sódio extraído da água do mar.',-19,fy(-19)+1.8,0); }
+{ const xa=-23.5, xb=XS; C(0.18,xa-xb,PM.iron,(xa+xb)/2,0,0,'x');
+  for(const x of [-24.4,-25.8]){ const r=Math.min(hullR(x)*0.5,1.1); const m=new THREE.Mesh(new THREE.TorusGeometry(r,0.16,10,28),PM.brass); m.rotation.y=Math.PI/2; m.position.set(x,0,0); rooms.add(m); }
+  { const x=-27.4, r=Math.min(hullR(x)*0.45,0.9); const g=new THREE.Mesh(new THREE.CylinderGeometry(r,r,0.18,20),PM.iron); g.rotation.z=Math.PI/2; g.position.set(x,0,0); rooms.add(g); }
+  propLabel('Eletroímãs e eixo','A segunda parte transmite o movimento: grandes eletroímãs agem sobre um sistema de alavancas e engrenagens que gira o eixo da hélice.',-25.5,Math.min(hullR(-25.5)*0.6,1.6)+0.3,0); }
+// helmsman in the pilot cage (the figure is part of the cage)
+propLabel('Timoneiro','Um homem forte, com as mãos nos raios da roda vertical, que move o cabo do leme até a popa. Fios elétricos ligam a cabine à sala de máquinas, e dali Nemo comanda direção e velocidade.',PILOT_X-0.45,deckY(PILOT_X)-0.9,0.6,'deck');
+
+// inner pressure hull outline (double hull)
+{
+  const pts=[]; for(let i=0;i<=120;i++){ const x=-30+63*i/120; pts.push(new THREE.Vector2(Math.max(hullR(x)*0.86,0.01),x)); }
+  const g=new THREE.LatheGeometry(pts,64); g.rotateZ(-Math.PI/2);
+  const inner=new THREE.Mesh(g,new THREE.MeshBasicMaterial({color:0x7fc4d8,wireframe:true,transparent:true,opacity:0.08}));
+  inner.name='innerHull'; rooms.add(inner);
+}
+
+/* ---------------- X-ray: exploded view and close-ups ---------------- */
+const roomSpans = roomDefs.map(r=>[r[1],r[2]]).sort((a,b)=>a[0]-b[0]);
+function roomRank(x){ for(let i=0;i<roomSpans.length;i++) if(x<roomSpans[i][1]) return i; return roomSpans.length-1; }
+const CENTER_RANK = roomRank(0.01), GAP = 2.6;
+rooms.children.forEach(c=>{ c.userData.base=c.position.clone(); });
+const axisLine = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-50,-0.1,0),new THREE.Vector3(50,-0.1,0)]),
+  new THREE.LineDashedMaterial({color:0xc9a25a,dashSize:0.6,gapSize:0.4,transparent:true,opacity:0}));
+axisLine.computeLineDistances(); rooms.add(axisLine);
+let explodeK=0, explodeTarget=0, focus=null;
+function applyExplode(k){
+  rooms.children.forEach(c=>{ const b=c.userData.base; if(!b) return;
+    if(!c.userData.noExplode) c.position.x = b.x + k*GAP*(roomRank(b.x)-CENTER_RANK);
+    c.position.y = b.y - (c.userData.ballast ? 2.4*k : 0); });
+  spurGrp.position.x  =  k*GAP*(roomSpans.length-CENTER_RANK);   // one gap beyond the bow compartment
+  sternGrp.position.x = -k*GAP*(CENTER_RANK+1);                 // one gap beyond the engine room
+  axisLine.material.opacity = 0.7*k;
+  const inner=rooms.getObjectByName('innerHull'); if(inner) inner.visible = k<0.02;
+  if(xray) shellMeshes.forEach(m=>{ m.material.opacity = 0.16*(1-0.8*k); });
+}
+function isolate(name){ roomMeshes.forEach(r=>{ const on=!name||r.name===name; r.box.material.opacity=on?0.55:0.07; r.edges.material.opacity=on?0.5:0.08; }); }
+function focusOn(obj,dist,roomName){ focus={obj,dist,t:0,release:false}; isolate(roomName); }
+function overview(){ isolate(null); focus={obj:rooms,dist:78,t:0,release:true}; }
+
+/* ---------------- labels / hotspots ---------------- */
+const hotspots = [
+  ['1','Esporão', [35.4,0.6,0], 'O esporão de aço da proa, forjado na Suécia (oficinas de Motala). Com ele o Nautilus perfura cascos de navios — daí os relatos de um monstro marinho com um chifre, que abrem o romance.'],
+  ['2','Cabine do piloto', [PILOT_X,5.6,0], 'Na extremidade dianteira da plataforma: uma cabine de cerca de 2 m de lado, de paredes inclinadas, com quatro vigias de vidro lenticular que deixam ver em todas as direções. No meio, uma roda vertical ligada ao cabo do leme. Dali o timoneiro conduz o Nautilus, inclusive debaixo d’água.'],
+  ['3','Cabine do farol', [LANTERN_X,5.6,0], 'A segunda cabine abriga o poderoso refletor elétrico, que ilumina o mar a meia milha à frente. O texto o põe atrás da cabine do timoneiro, e as duas cabines erguem-se à proa e à popa da plataforma. Os anéis de farol costeiro nas lentes são interpretação.'],
+  ['4','Plataforma', [3,4.6,1.3], 'O dorso do casco que emerge à superfície — só cerca de um metro (“três pés”) acima da água. As chapas, ligeiramente sobrepostas, lembram a carapaça dos grandes répteis.'],
+  ['5','Canoa', [-1.5,4.7,0], 'Canoa leve e insubmersível, meio embutida no casco, no meio da plataforma, e presa por parafusos. Sobe à superfície soltando-se do submarino, com remos, mastro e vela.'],
+  ['6','Bandeira de Nemo', [FLAG_X,8.6,0], 'Bandeira negra com um “N” dourado. Nemo a desfralda no Polo Sul e, de novo, na parte da frente da plataforma, durante o ataque ao navio de guerra (Parte II, cap. XXI, “Uma hecatombe”). O mastro fixo é interpretação. Use “Bandeira” para içá-la ou arriá-la.'],
+  ['7','Janelas do salão', [15,-0.4,hullR(15)+1.0], 'Duas aberturas oblongas nos flancos do salão, com vidros cintados por fortes faixas de cobre. Painéis de ferro deslizam e revelam o oceano iluminado pela luz elétrica. Use “Painéis do salão”.'],
+  ['8','Planos inclinados', [2,-0.2,-7.6], 'Dois planos fixados nos flancos, à altura do centro de flutuação, móveis em todas as direções e acionados por alavancas internas. Paralelos ao casco: o Nautilus segue na horizontal. Inclinados, e sob o impulso da hélice, ele desce ou sobe em diagonal. Teste no painel Pilotagem.'],
+  ['9','Hélice', [XS-0.6,3.4,0], 'Hélice de 6 m de diâmetro e 7,5 m de passo, a cerca de 120 rotações por segundo, acionada por eletroímãs; leva o Nautilus a cerca de 50 milhas por hora, segundo Nemo. O número de pás é interpretação. Para subir depressa, Nemo desengata a hélice e a pressão da água faz o Nautilus subir na vertical, “como um balão”.'],
+  ['10','Leme', [XS-2.2,3.4,0], 'Para virar a bombordo ou estibordo, um leme comum, fixado atrás do cadaste e movido por uma roda e talhas. Teste no painel Pilotagem.'],
+  ['11','Casco duplo', [-19,-1.4,Math.sqrt(Math.max(hullR(-19)**2-1.96,0))], 'Dois cascos de chapas de aço ligados por cantoneiras em T, formando um bloco rígido capaz de resistir à pressão das grandes profundidades.'],
+  ['12','Balaustrada', [6,5.4,1.8], 'Balaustrada de ferro em volta da plataforma. Verne a menciona na Parte II, cap. XXI, “Uma hecatombe”: antes do ataque ela é baixada e as duas cabines são recolhidas até ficarem rentes ao convés. Use “Preparar para o ataque”.'],
+  ['13','Corrimão elétrico', [-6.6,5.6,0], 'Na escada central, durante o ataque dos papuas (Parte I, “O raio do capitão Nemo”), o corrimão era um cabo metálico eletrificado: quem o tocava levava um choque. Ned Land também o agarrou e foi derrubado. O cabo pisca em azul de tempos em tempos.'],
+];
+const labelObjs=[];
+for(const [n,name,p,desc] of hotspots){
+  const d=document.createElement('div'); d.className='lbl'; d.innerHTML=`<b>${n}</b>${name}`;
+  // zoom to the part; the camera is released after the move so the viewer can orbit freely
+  d.onclick=()=>{ show(name,desc); focus={obj:o,dist:['4','11','12'].includes(n)?22:9,t:0,release:true}; };
+  const o=new CSS2DObject(d); o.position.set(...p); nautilus.add(o); labelObjs.push(o);
+}
+const det=document.getElementById('detail');
+// engravings of the 1871 Hetzel edition (public domain, Wikimedia Commons), shown with the matching compartment or part.
+// [file, what it shows, artist, place in the book]. Artists as attributed on Wikimedia Commons.
+const G = {
+  '020':['Aronnax e Nemo à mesa, diante de um aparador entalhado.','Édouard Riou','Parte I, cap. XI, “Le Nautilus”'],
+  '021':['Nemo e Aronnax nos divãs da biblioteca, sob os globos de luz do teto.','Édouard Riou','Parte I, cap. XI, “Le Nautilus”'],
+  '022':['O salão-museu: o órgão ao fundo, quadros nas paredes, vitrines e a grande concha que serve de fonte.','Édouard Riou','Parte I, cap. XI, “Le Nautilus”'],
+  '023':['No quarto de Nemo, os instrumentos de navegação cobrem a parede, acima da cama.','Édouard Riou','Parte I, cap. XII, “Tout par l’électricité”'],
+  '024':['A sala de máquinas: os grandes elementos de Bunsen, os tubos e as engrenagens do eixo.','Alphonse de Neuville','Parte I, cap. XII, “Tout par l’électricité”'],
+  '027':['Nemo mede a altura do sol com o sextante na plataforma. Atrás dele, uma das cabines, com as vigias de vidro lenticular.','Neuville e Riou','Parte I, cap. XIV, “Le Fleuve-Noir”'],
+  '029':['Os painéis do salão se abrem pela primeira vez: Aronnax, Conseil e Ned diante das medusas.','Alphonse de Neuville','Parte I, cap. XIV, “Le Fleuve-Noir”'],
+  '034':['Nemo com um fuzil de ar comprimido, entre os escafandros, observado por Ned Land.','Alphonse de Neuville','Parte I, cap. XV, “Une invitation par lettre”'],
+  '040':['O Nautilus debaixo d’água, com o feixe do farol aceso à frente.','Alphonse de Neuville','Parte I'],
+  '051':['Os papuas tentam descer pela escada central. Quem toca o corrimão leva um choque.','George Roux','Parte I, cap. XXII, “La foudre du capitaine Nemo”'],
+  '069':['Na cabine do piloto, a mão na roda do leme e a vigia lenticular ao lado (a travessia do túnel arábico).','Alphonse de Neuville','Parte II, cap. V, “Arabian-Tunnel”'],
+  '087':['Nemo ao piano-órgão do salão.','Alphonse de Neuville','Parte II'],
+  '099':['Nemo desfralda a bandeira negra com o “N” dourado no Polo Sul.','George Roux','Parte II, cap. XIV, “Le pôle Sud”'],
+  '107':['Pela janela do salão, um polvo gigante.','George Roux','Parte II, cap. XVIII, “Les poulpes”'],
+  '108':['A tripulação enfrenta os polvos a machadadas na escada central.','Alphonse de Neuville','Parte II, cap. XVIII, “Les poulpes”'],
+};
+const GRAV = {
+  'Sala de jantar':['020'], 'Mesa e aparadores':['020'],
+  'Biblioteca':['021'], 'Estantes e mesa':['021'],
+  'Salão-museu':['022','029','087'], 'Vitrines':['029','022'], 'Piano-órgão':['087','022'], 'Janelas do salão':['029','107'],
+  'Camarote de Nemo':['023'], 'Cama e instrumentos':['023'],
+  'Sala de máquinas':['024'], 'Elementos de Bunsen':['024'], 'Eletroímãs e eixo':['024'],
+  'Escafandros':['034'], 'Plataforma':['027'],
+  'Cabine do piloto':['069','027'], 'Timoneiro':['069'], 'Cabine do farol':['040','027'],
+  'Escada central':['108','051'], 'Corrimão elétrico':['051'], 'Bandeira de Nemo':['099'],
+};
+const gEl={fig:document.getElementById('grav'), img:document.getElementById('gImg'), cap:document.getElementById('gCap'), nav:document.getElementById('gNav'), num:document.getElementById('gNum'),
+  box:document.getElementById('gravBox'), bImg:document.getElementById('gbImg'), bCap:document.getElementById('gbCap')};
+let gList=[], gIdx=0;
+// bump GRAV_V when the image files change, so browsers don't keep showing the old copies from their cache
+const GRAV_V=2, gSrc = f => 'gravuras/'+f+'.jpg?v='+GRAV_V;
+const gText = f => { const [what,who,where]=G[f]; return `${what} Gravura de ${who}, edição Hetzel de 1871 · ${where}.`; };
+function gShow(i){
+  gIdx=(i+gList.length)%gList.length; const f=gList[gIdx];
+  gEl.img.src=gSrc(f); gEl.img.alt=G[f][0]; gEl.cap.textContent=gText(f);
+  gEl.nav.style.display=gList.length>1?'flex':'none'; gEl.num.textContent=(gIdx+1)+' de '+gList.length;
+}
+document.getElementById('gPrev').onclick=()=>gShow(gIdx-1);
+document.getElementById('gNext').onclick=()=>gShow(gIdx+1);
+gEl.img.onerror=()=>{ gEl.fig.style.display='none'; };   // the page still works if the folder is missing
+gEl.img.onclick=()=>{ const f=gList[gIdx]; gEl.bImg.src=gSrc(f); gEl.bImg.alt=G[f][0]; gEl.bCap.textContent=gText(f); gEl.box.style.display='flex'; };
+gEl.box.onclick=()=>{ gEl.box.style.display='none'; };
+addEventListener('keydown',e=>{ if(e.key==='Escape') gEl.box.style.display='none'; });
+// while the detail box is open, the Pilotagem panel steps aside (not remembered); it comes back when the box closes
+let pilotStepAside=false;
+function pilotAside(on){
+  const pp=document.getElementById('pilotPanel');
+  if(on && !pp.classList.contains('hide')){ pp.classList.add('hide'); pilotStepAside=true; syncPanelButtons(); }
+  if(!on && pilotStepAside){ pp.classList.remove('hide'); pilotStepAside=false; syncPanelButtons(); }
+}
+function show(t,p){ document.getElementById('dt').textContent=t; document.getElementById('dp').textContent=p; det.style.display='block'; pilotAside(true);
+  gList=GRAV[t]||[]; gEl.fig.style.display=gList.length?'block':'none'; if(gList.length) gShow(0); det.scrollTop=0; fitDetail(); }
+// keep the detail box clear of the control bar and the Pilotagem button below it (the box scrolls instead)
+function fitDetail(){
+  if(det.style.display==='none' || innerWidth<=760){ det.style.maxHeight=''; return; }
+  const r=det.getBoundingClientRect(); let bottom=innerHeight-16;
+  for(const id of ['ctrl','pilotToggle']){ const el=document.getElementById(id); if(!el || !el.getClientRects().length) continue;   // hidden (offsetParent is null for fixed elements, so not used)
+    const q=el.getBoundingClientRect(); if(q.width && q.right>r.left && q.left<r.right && q.top>r.top+120) bottom=Math.min(bottom,q.top-10); }
+  det.style.maxHeight=Math.max(160,bottom-r.top)+'px';
+}
+addEventListener('resize',fitDetail);
+document.getElementById('dx').onclick=()=>{ det.style.display='none'; pilotAside(false); };
+
+/* ---------------- environment: sky, water, underwater ---------------- */
+const sky = new THREE.Mesh(new THREE.SphereGeometry(900,32,16), new THREE.ShaderMaterial({
+  side:THREE.BackSide, depthWrite:false, fog:false,
+  uniforms:{top:{value:new THREE.Color(0x3d6c9c)}, mid:{value:new THREE.Color(0xc8d6dc)}, bot:{value:new THREE.Color(0x0d2233)}},
+  vertexShader:`varying vec3 vP; void main(){ vP=normalize(position); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }`,
+  fragmentShader:`uniform vec3 top,mid,bot; varying vec3 vP; void main(){ float h=vP.y; vec3 c = h>0. ? mix(mid,top,pow(h,0.55)) : mix(mid,bot,pow(-h,0.4));
+    float s = pow(max(dot(vP, normalize(vec3(.6,.55,.3))),0.),300.); c += vec3(1.,.9,.7)*s*2.; gl_FragColor=vec4(c,1.); }`
+}));
+scene.add(sky);
+
+const waterUniforms = { uTime:{value:0}, uDeep:{value:new THREE.Color(0x06263a)}, uShallow:{value:new THREE.Color(0x2f7a8f)}, uSun:{value:new THREE.Vector3(.6,.55,.3).normalize()}, uUnder:{value:0}, uOff:{value:new THREE.Vector2()} };
+const water = new THREE.Mesh(new THREE.PlaneGeometry(900,900,260,260), new THREE.ShaderMaterial({
+  uniforms:waterUniforms, transparent:true, side:THREE.DoubleSide,
+  vertexShader:`uniform float uTime; uniform vec2 uOff; varying vec3 vW; varying vec3 vN;
+    float wave(vec2 p, vec2 d, float f, float a, float s){ return a*sin(dot(p,d)*f + uTime*s); }
+    float H(vec2 p){ return wave(p,normalize(vec2(1.,.3)),.12,.35,1.1)+wave(p,normalize(vec2(-.4,1.)),.21,.18,1.6)+wave(p,normalize(vec2(.7,-.6)),.5,.06,2.3)+wave(p,normalize(vec2(.2,.9)),.9,.03,3.1); }
+    void main(){ vec3 p=position; vec2 xz=vec2(p.x,-p.y)+uOff; float h=H(xz); float e=.2;
+      vec3 n=normalize(vec3(-(H(xz+vec2(e,0.))-h)/e,1.,-(H(xz+vec2(0.,e))-h)/e));
+      p.z+=h; vec4 w=modelMatrix*vec4(p,1.); vW=w.xyz; vN=n; gl_Position=projectionMatrix*viewMatrix*w; }`,
+  fragmentShader:`uniform vec3 uDeep,uShallow,uSun; uniform float uUnder; varying vec3 vW; varying vec3 vN;
+    void main(){ vec3 V=normalize(cameraPosition-vW); vec3 N=vN; if(uUnder>.5) N=-N;
+      float fr=pow(1.-max(dot(N,V),0.),4.);
+      vec3 sky=vec3(.75,.84,.9);
+      vec3 col=mix(uDeep,uShallow,.35+.4*N.y);
+      col=mix(col,sky,fr*.75);
+      vec3 Hh=normalize(uSun+V); col+=vec3(1.,.95,.8)*pow(max(dot(N,Hh),0.),220.)*2.5;
+      float dist=length(vW.xz-cameraPosition.xz);
+      if(uUnder>.5){ col=mix(vec3(.35,.7,.8),vec3(.05,.25,.35),fr); col+=vec3(.6,.9,1.)*pow(max(dot(-vN,vec3(0.,-1.,0.)),0.),8.)*.3; }
+      float fade = uUnder>.5 ? 1.-smoothstep(60.,260.,dist) : 1.;
+      gl_FragColor=vec4(col, (uUnder>.5?0.9:0.93)*fade); }`
+}));
+water.rotation.x = -Math.PI/2;
+scene.add(water);
+
+// seabed
+// The Nautilus stays at the origin and the sea floor slides under it (see moveSeabed).
+// The sand relief repeats every SEA_TILE m, so the sand can be shifted back by one tile without a jump;
+// rocks, kelp and coral wrap around inside a 2*SEA_WRAP square, far enough to be hidden by the fog.
+const SEA_TILE = 120, SEA_WRAP = 120, SEA_W = 2*Math.PI/SEA_TILE, SEABED_Y = -16;
+const seaH = (x,z)=> Math.sin(x*SEA_W)*1.6 + Math.cos(z*SEA_W)*1.3 + Math.sin((x+z)*SEA_W*4)*.35
+                   + Math.sin(x*SEA_W*9)*Math.sin(z*SEA_W*11)*.08;
+const seabed = new THREE.Group(); scene.add(seabed);
+const seaProps = [], rockList = [];   // rockList: rocks the hull can rest on                 // {o, bx, bz, dy}: base position and height above the sand
+let sand;
+{
+  const g=new THREE.PlaneGeometry(500,500,200,200); g.rotateX(-Math.PI/2);
+  const p=g.attributes.position;
+  const sc=new Float32Array(p.count*3);
+  for(let i=0;i<p.count;i++){ const x=p.getX(i), z=p.getZ(i); p.setY(i, seaH(x,z));
+    // patches of lighter and darker sand, repeating with the tile so the shift is seamless
+    const k=0.86+0.09*Math.sin(x*SEA_W*3+1)*Math.cos(z*SEA_W*2)+0.06*Math.sin((x-z)*SEA_W*7)+0.04*Math.sin(x*SEA_W*17)*Math.sin(z*SEA_W*13);
+    sc[i*3]=k; sc[i*3+1]=k*0.98; sc[i*3+2]=k*0.93; }
+  g.setAttribute('color',new THREE.BufferAttribute(sc,3));
+  g.computeVertexNormals();
+  sand=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:0xc2b083,roughness:1,vertexColors:true}));
+  seabed.add(sand);
+  // ---- reef: rocks, corals, sponges, anemones, sea grass, kelp, starfish, urchins ----
+  // seeded random numbers, so the sea floor is the same every time the page opens
+  const rnd = (()=>{ let a=20000; return ()=>{ a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; })();
+  const pick = arr => arr[Math.floor(rnd()*arr.length)];
+  const hash3 = (x,y,z)=>{ const h=Math.sin(x*127.1+y*311.7+z*74.7)*43758.5453; return h-Math.floor(h); };
+  function vnoise(x,y,z){
+    const xi=Math.floor(x), yi=Math.floor(y), zi=Math.floor(z); let xf=x-xi, yf=y-yi, zf=z-zi;
+    xf=xf*xf*(3-2*xf); yf=yf*yf*(3-2*yf); zf=zf*zf*(3-2*zf);
+    const L=(a,b,t)=>a+(b-a)*t, h=(i,j,k)=>hash3(xi+i,yi+j,zi+k);
+    return L(L(L(h(0,0,0),h(1,0,0),xf),L(h(0,1,0),h(1,1,0),xf),yf), L(L(h(0,0,1),h(1,0,1),xf),L(h(0,1,1),h(1,1,1),xf),yf), zf);
+  }
+  const fbm = (x,y,z)=>{ let s=0,a=0.5,f=1; for(let o=0;o<4;o++){ s+=a*vnoise(x*f,y*f,z*f); f*=2.03; a*=0.5; } return s; };
+  const up = new THREE.Vector3(0,1,0);
+  const place = (o, x, z, dy, ph)=>{ o.position.set(x,0,z); if(ph!==undefined) o.userData.ph=ph; seabed.add(o); seaProps.push({o,dy}); return o; };
+  const inSea = ()=> (rnd()*2-1)*SEA_WRAP;
+
+  // rocks: noise-displaced, flattened at the base, darker in the hollows, with algae or pink coralline crust on top
+  const rockPal=[0x5d5850,0x6a6156,0x4f5254,0x5a5048,0x6e6a62];
+  // crusts on top: green algae, olive algae, pink coralline algae, ochre sponge (sRGB hex, converted to linear by THREE.Color)
+  const crusts=[0x55703a,0x6b6a34,0x9c6a74,0x8f6a3e].map(h=>new THREE.Color(h));
+  function rockGeo(seed){
+    let g=new THREE.IcosahedronGeometry(1,4); g.deleteAttribute('normal'); g.deleteAttribute('uv'); g=mergeVertices(g);
+    const p=g.attributes.position, v=new THREE.Vector3();
+    const sx=0.8+rnd()*0.7, sy=0.5+rnd()*0.45, sz=0.8+rnd()*0.7;
+    for(let i=0;i<p.count;i++){ v.fromBufferAttribute(p,i);
+      const n=fbm(v.x*1.1+seed,v.y*1.1,v.z*1.1), d=fbm(v.x*3.4+seed,v.y*3.4,v.z*3.4);
+      let r=0.7+n*0.6+d*0.2 - Math.abs(Math.sin(v.y*6+seed+n*5))*0.05;    // lumps, small pits and faint strata
+      v.multiplyScalar(r); v.x*=sx; v.y*=sy; v.z*=sz;
+      if(v.y<-0.2) v.y=-0.2+(v.y+0.2)*0.15;                                // sits flat on the sand
+      p.setXYZ(i,v.x,v.y,v.z); }
+    g.computeVertexNormals();
+    const nr=g.attributes.normal, col=new Float32Array(p.count*3), base=new THREE.Color(pick(rockPal)), crust=pick(crusts), c=new THREE.Color();
+    for(let i=0;i<p.count;i++){ v.fromBufferAttribute(p,i);
+      const cav=fbm(v.x*2.6+seed,v.y*2.6,v.z*2.6), ny=nr.getY(i);
+      c.copy(base).multiplyScalar(0.35+cav*0.9);                          // hollows dark, bumps lighter
+      const top=Math.max(0,Math.min(1,(ny-0.55)/0.35)) * (fbm(v.x*1.7+90,v.y*1.7,v.z*1.7)>0.47?0.85:0.1);
+      c.lerp(crust.clone().multiplyScalar(0.6+cav*0.6), top);
+      col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b; }
+    g.setAttribute('color',new THREE.BufferAttribute(col,3));
+    g.computeBoundingBox(); const bb=g.boundingBox;
+    g.userData.top=bb.max.y; g.userData.rad=Math.max(-bb.min.x,bb.max.x,-bb.min.z,bb.max.z)*0.9;
+    return g;
+  }
+  const rockGeos=[]; for(let i=0;i<10;i++) rockGeos.push(rockGeo(i*17.3));
+  const rockMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.93});
+  const addRock=(x,z,s)=>{ const r=new THREE.Mesh(pick(rockGeos),rockMat); r.scale.setScalar(s); r.rotation.y=rnd()*6.3;
+    rockList.push({o:r, top:r.geometry.userData.top*s, rad:r.geometry.userData.rad*s}); return place(r,x,z,-s*0.12); };
+
+  // brain coral: a dome with meandering grooves
+  function brainGeo(){
+    const g=new THREE.SphereGeometry(1,48,24,0,Math.PI*2,0,Math.PI/2), p=g.attributes.position, v=new THREE.Vector3(), col=new Float32Array(p.count*3);
+    const base=new THREE.Color(pick([0xc9a46a,0xb88a5c,0xa9b06a,0xc08a7a]));
+    for(let i=0;i<p.count;i++){ v.fromBufferAttribute(p,i);
+      const w=Math.sin(v.x*11+fbm(v.x*2,v.y*2,v.z*2)*14)*Math.cos(v.z*11+fbm(v.z*2+5,v.y*2,v.x*2)*14);
+      const r=1+0.05*w; p.setXYZ(i,v.x*r,v.y*r*0.7,v.z*r);
+      const k=0.7+0.3*(w*0.5+0.5); col[i*3]=base.r*k; col[i*3+1]=base.g*k; col[i*3+2]=base.b*k; }
+    g.computeVertexNormals(); g.setAttribute('color',new THREE.BufferAttribute(col,3)); return g;
+  }
+  const brainGeos=[brainGeo(),brainGeo(),brainGeo()];
+  const coralMat=new THREE.MeshStandardMaterial({vertexColors:true,roughness:0.85});
+
+  // branching coral: a small recursive tree of tapering cylinders with rounded tips
+  function branchGeo(){
+    const parts=[];
+    const grow=(base,dir,len,rad,depth)=>{
+      const cg=new THREE.CylinderGeometry(rad*0.72,rad,len,7,1,false); cg.translate(0,len/2,0);
+      cg.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up,dir)); cg.translate(base.x,base.y,base.z); parts.push(cg);
+      const end=base.clone().addScaledVector(dir,len);
+      if(depth>0){ const n=2+(rnd()<0.45?1:0);
+        for(let k=0;k<n;k++){ const side=new THREE.Vector3(rnd()-.5,0,rnd()-.5).normalize();
+          const nd=dir.clone().applyAxisAngle(side.cross(dir).normalize(), 0.35+rnd()*0.45).add(new THREE.Vector3(0,0.25,0)).normalize();
+          grow(end,nd,len*(0.62+rnd()*0.2),rad*0.72,depth-1); } }
+      else { const s=new THREE.SphereGeometry(rad*0.95,7,5); s.translate(end.x,end.y,end.z); parts.push(s); }
+    };
+    for(let k=0;k<3;k++) grow(new THREE.Vector3((rnd()-.5)*0.4,0,(rnd()-.5)*0.4), new THREE.Vector3((rnd()-.5)*0.6,1,(rnd()-.5)*0.6).normalize(), 0.55, 0.11, 3);
+    return mergeGeometries(parts);
+  }
+  const branchGeos=[branchGeo(),branchGeo(),branchGeo(),branchGeo()];
+  const branchCols=[0xe0794f,0xd65a8a,0xe8d6a0,0x9a64c8,0xf0a64a];
+
+  // sea fans (gorgonians): a fine branching lattice drawn on a canvas, used as a cut-out
+  function fanTex(){
+    const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d');
+    x.strokeStyle='#fff'; x.lineCap='round';
+    const br=(px,py,a,len,w,d)=>{ const qx=px+Math.cos(a)*len, qy=py-Math.sin(a)*len;
+      x.lineWidth=w; x.beginPath(); x.moveTo(px,py); x.lineTo(qx,qy); x.stroke();
+      if(d>0){ br(qx,qy,a+0.25+rnd()*0.35,len*0.8,w*0.72,d-1); br(qx,qy,a-0.25-rnd()*0.35,len*0.8,w*0.72,d-1); } };
+    br(128,256,Math.PI/2,52,7,7);
+    x.lineWidth=0.8; x.globalAlpha=0.5;                                     // the fine mesh between the branches
+    for(let i=0;i<70;i++){ const a=Math.PI*(0.12+0.76*rnd()), r1=40+rnd()*170, r2=r1+8+rnd()*14;
+      x.beginPath(); x.moveTo(128+Math.cos(a)*r1,256-Math.sin(a)*r1); x.lineTo(128+Math.cos(a+0.05)*r2,256-Math.sin(a+0.05)*r2); x.stroke(); }
+    const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; return t;
+  }
+  const fanTexs=[fanTex(),fanTex(),fanTex()];
+  const fanCols=[0x9b3f8f,0xc8343c,0xe8a33a,0xd86a9a];
+
+  // tube sponges: a cluster of open, slightly flared tubes
+  function spongeGeo(){
+    const parts=[], n=3+Math.floor(rnd()*4);
+    for(let k=0;k<n;k++){ const h=0.6+rnd()*1.4, r=0.12+rnd()*0.12;
+      const cg=new THREE.CylinderGeometry(r*1.25,r,h,12,1,true); cg.translate(0,h/2,0);
+      cg.rotateZ((rnd()-.5)*0.4); cg.rotateX((rnd()-.5)*0.4); cg.translate((rnd()-.5)*0.6,0,(rnd()-.5)*0.6); parts.push(cg); }
+    return mergeGeometries(parts);
+  }
+  const spongeGeos=[spongeGeo(),spongeGeo(),spongeGeo()];
+  const spongeCols=[0xd88a3c,0x7a4f9e,0xc4b14a,0xb2493a];
+
+  // anemones: a short column with a crown of tentacles
+  function anemoneGeo(){
+    const parts=[new THREE.CylinderGeometry(0.22,0.28,0.3,12)]; parts[0].translate(0,0.15,0);
+    for(let k=0;k<30;k++){ const a=k/30*Math.PI*2+rnd()*0.2, ring=k%2?0.15:0.08;
+      const tg=new THREE.CylinderGeometry(0.012,0.035,0.45+rnd()*0.2,4); tg.translate(0,0.25,0);
+      tg.rotateZ(0.5+(k%2)*0.4); tg.rotateY(a); tg.translate(Math.cos(a)*ring,0.3,-Math.sin(a)*ring); parts.push(tg); }
+    return mergeGeometries(parts);
+  }
+  const anemoneGeos=[anemoneGeo(),anemoneGeo()];
+  const anemoneCols=[0xf0a0b8,0xe9d27a,0x9fd6a0,0xf08a6a];
+
+  // sea grass: a patch of thin bent blades
+  function grassGeo(){
+    const parts=[];
+    for(let k=0;k<70;k++){ const h=0.5+rnd()*1.1, b=new THREE.PlaneGeometry(0.06,h,1,4), p=b.attributes.position, bend=(rnd()-.5)*0.5;
+      for(let i=0;i<p.count;i++){ const y=p.getY(i)+h/2; p.setXYZ(i,p.getX(i)+bend*(y/h)**2,y,0); }
+      b.rotateY(rnd()*Math.PI); const a=rnd()*Math.PI*2, r=Math.sqrt(rnd())*1.6; b.translate(Math.cos(a)*r,0,Math.sin(a)*r); parts.push(b); }
+    return mergeGeometries(parts);
+  }
+  const grassGeo1=grassGeo(), grassGeo2=grassGeo();
+  const grassMat=new THREE.MeshStandardMaterial({color:0x4f7a35,roughness:0.85,side:THREE.DoubleSide});
+
+  // starfish and sea urchins
+  const starGeo=(()=>{ const s=new THREE.Shape(); for(let i=0;i<10;i++){ const a=i/10*Math.PI*2+Math.PI/2, r=i%2?0.13:0.36; i?s.lineTo(Math.cos(a)*r,Math.sin(a)*r):s.moveTo(Math.cos(a)*r,Math.sin(a)*r); }
+    const g=new THREE.ExtrudeGeometry(s,{depth:0.04,bevelEnabled:true,bevelSize:0.03,bevelThickness:0.03,bevelSegments:2}); g.rotateX(-Math.PI/2); return g; })();
+  const starCols=[0xe0662f,0xc8343c,0xe8a33a,0x9b3f8f];
+  const urchinGeo=(()=>{ const parts=[new THREE.SphereGeometry(0.22,12,8)];
+    for(let k=0;k<46;k++){ const d=new THREE.Vector3(rnd()-.5,rnd()*0.8,rnd()-.5).normalize();
+      const c=new THREE.ConeGeometry(0.015,0.42,4); c.translate(0,0.21+0.18,0); c.applyQuaternion(new THREE.Quaternion().setFromUnitVectors(up,d)); parts.push(c); }
+    return mergeGeometries(parts); })();
+  const urchinMat=new THREE.MeshStandardMaterial({color:0x2d1f3a,roughness:0.6});
+
+  const mat = (c,extra)=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:0.85},extra||{}));
+  // reef patches: a few rocks with corals, fans, sponges and small creatures around them
+  for(let i=0;i<26;i++){
+    const cx=inSea(), cz=inSea();
+    const nR=1+Math.floor(rnd()*3);
+    for(let k=0;k<nR;k++) addRock(cx+(rnd()-.5)*6, cz+(rnd()-.5)*6, k?0.6+rnd()*1.2:1.4+rnd()*2.2);
+    const around=(spread)=>[cx+(rnd()-.5)*spread, cz+(rnd()-.5)*spread];
+    for(let k=0, n=2+Math.floor(rnd()*4); k<n; k++){
+      const [x,z]=around(11), kind=rnd();
+      if(kind<0.35){ const m=new THREE.Mesh(pick(brainGeos),coralMat); m.scale.setScalar(0.5+rnd()*0.9); m.rotation.y=rnd()*6; place(m,x,z,-0.1); }
+      else { const m=new THREE.Mesh(pick(branchGeos),mat(pick(branchCols))); m.scale.setScalar(0.9+rnd()*1.3); m.rotation.y=rnd()*6; place(m,x,z,-0.05,rnd()*6); }
+    }
+    for(let k=0, n=Math.floor(rnd()*3); k<n; k++){ const [x,z]=around(10), w=1.6+rnd()*1.8;
+      const g=new THREE.PlaneGeometry(w,w*0.9); g.translate(0,w*0.45,0);
+      const m=new THREE.Mesh(g,new THREE.MeshStandardMaterial({color:pick(fanCols),map:pick(fanTexs),alphaTest:0.35,side:THREE.DoubleSide,roughness:0.9}));
+      m.rotation.y=rnd()*6; place(m,x,z,-0.05,rnd()*6); }
+    for(let k=0, n=Math.floor(rnd()*3); k<n; k++){ const [x,z]=around(10);
+      const m=new THREE.Mesh(pick(spongeGeos),mat(pick(spongeCols),{side:THREE.DoubleSide})); m.scale.setScalar(0.8+rnd()*0.8); place(m,x,z,-0.05); }
+    for(let k=0, n=Math.floor(rnd()*3); k<n; k++){ const [x,z]=around(9), c=pick(anemoneCols);
+      const m=new THREE.Mesh(pick(anemoneGeos),mat(c,{emissive:c,emissiveIntensity:0.12})); m.scale.setScalar(0.8+rnd()*0.9); place(m,x,z,0,rnd()*6); }
+    for(let k=0, n=Math.floor(rnd()*3); k<n; k++){ const [x,z]=around(10);
+      const m=new THREE.Mesh(urchinGeo,urchinMat); m.scale.setScalar(0.7+rnd()*0.6); place(m,x,z,0.05); }
+    for(let k=0, n=Math.floor(rnd()*3); k<n; k++){ const [x,z]=around(12);
+      const m=new THREE.Mesh(starGeo,mat(pick(starCols))); m.rotation.y=rnd()*6; m.scale.setScalar(0.8+rnd()*0.7); place(m,x,z,0.03); }
+  }
+  // scattered boulders and pebbles
+  for(let i=0;i<40;i++) addRock(inSea(), inSea(), rnd()<0.7 ? 0.25+rnd()*0.6 : 0.9+rnd()*1.6);
+  // sea grass meadows
+  for(let i=0;i<14;i++){ const cx=inSea(), cz=inSea();
+    for(let k=0;k<6;k++){ const m=new THREE.Mesh(rnd()<0.5?grassGeo1:grassGeo2,grassMat); m.rotation.y=rnd()*6; place(m,cx+(rnd()-.5)*9,cz+(rnd()-.5)*9,-0.05,rnd()*6); } }
+  // kelp forests
+  const kelpMats=[new THREE.MeshStandardMaterial({color:0x3f6b2a,roughness:0.8,side:THREE.DoubleSide}), new THREE.MeshStandardMaterial({color:0x5a6b2a,roughness:0.8,side:THREE.DoubleSide})];
+  for(let f=0;f<6;f++){ const cx=inSea(), cz=inSea();
+    for(let i=0;i<11;i++){
+      const h=5+rnd()*10, pts=[]; for(let k=0;k<=8;k++) pts.push(new THREE.Vector3(Math.sin(k*.7+i)*.4,k*h/8,Math.cos(k*.5+i)*.3));
+      const kelp=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts),20,0.11,5),pick(kelpMats));
+      place(kelp,cx+(rnd()-.5)*12,cz+(rnd()-.5)*12,-0.2,rnd()*6); } }
+  seabed.position.y=SEABED_Y;
+  for(const sp of seaProps){ sp.bx=sp.o.position.x; sp.bz=sp.o.position.z; }
+}
+// distance travelled by the Nautilus over the sea floor (world x/z, metres)
+const travel = {x:0, z:0};
+const wrapC = (v,h)=> ((v+h)%(2*h)+2*h)%(2*h)-h;   // wrap into [-h, h)
+// height of the sea floor at a point near the boat (x,z relative to it): the sand, or a rock where there is one
+function floorAt(x,z){
+  let g=SEABED_Y+seaH(x+travel.x, z+travel.z);
+  for(const r of rockList){ const dx=x-r.o.position.x, dz=z-r.o.position.z;
+    if(Math.abs(dx)<r.rad && Math.abs(dz)<r.rad){ const q=1-(dx*dx+dz*dz)/(r.rad*r.rad);
+      if(q>0) g=Math.max(g, SEABED_Y+r.o.position.y+r.top*Math.sqrt(q)); } }
+  return g;
+}
+function moveSeabed(){
+  sand.position.x = -(((travel.x%SEA_TILE)+SEA_TILE)%SEA_TILE);
+  sand.position.z = -(((travel.z%SEA_TILE)+SEA_TILE)%SEA_TILE);
+  for(const sp of seaProps){
+    const x=wrapC(sp.bx-travel.x,SEA_WRAP), z=wrapC(sp.bz-travel.z,SEA_WRAP);
+    sp.o.position.set(x, seaH(x+travel.x, z+travel.z)+sp.dy, z);   // keep each piece resting on the sand
+  }
+  for(const r of rays.children) { r.position.x=wrapC(r.userData.bx-travel.x*0.6,60); r.position.z=wrapC(r.userData.bz-travel.z*0.6,60); }
+}
+// ---------------- sea life (submerged scene) ----------------
+// Fish schools, a few large solitary fish, jellyfish and rays. Like the sea floor, they live in sea
+// coordinates and are drawn relative to the travelling Nautilus; they steer clear of its hull.
+const sealife = new THREE.Group(); scene.add(sealife);
+const lifeTime = {value:0};
+const lrnd = (()=>{ let a=777; return ()=>{ a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; })();
+// swimming motion added in the vertex shader: the body bends in a wave that grows toward the tail
+function swimShader(mat, code){
+  mat.onBeforeCompile = sh=>{ sh.uniforms.uTime=lifeTime;
+    sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\n'+code); };
+  return mat;
+}
+// fish: body along +x (head) to -x (tail), 1 m long; dorsal and tail fins
+const fishGeo = (()=>{
+  const body=new THREE.SphereGeometry(0.5,16,10); body.scale(1,0.42,0.17);
+  const tail=new THREE.BufferGeometry(); tail.setAttribute('position',new THREE.Float32BufferAttribute([-0.42,0,0, -0.72,0.22,0, -0.72,-0.22,0, -0.42,0,0.001, -0.72,-0.22,0.001, -0.72,0.22,0.001],3));
+  tail.setAttribute('uv',new THREE.Float32BufferAttribute(new Array(12).fill(0),2)); tail.computeVertexNormals();
+  const dors=new THREE.BufferGeometry(); dors.setAttribute('position',new THREE.Float32BufferAttribute([0.15,0.18,0, -0.2,0.18,0, -0.05,0.34,0, 0.15,0.18,0.001, -0.05,0.34,0.001, -0.2,0.18,0.001],3));
+  dors.setAttribute('uv',new THREE.Float32BufferAttribute(new Array(12).fill(0),2)); dors.computeVertexNormals();
+  return mergeGeometries([body.toNonIndexed(), tail, dors]);
+})();
+const fishMat = swimShader(new THREE.MeshStandardMaterial({roughness:0.45,metalness:0.25,side:THREE.DoubleSide}),
+  `float ph=float(gl_InstanceID)*1.37; float tw=clamp(0.35-position.x,0.0,1.1);
+   transformed.z += sin(uTime*9.0+ph+position.x*5.0)*0.16*tw;`);
+const SCHOOLS = [
+  {n:70, size:0.32, cols:[0xc4d6e2,0x9fb6c8], spread:[7,2.2,5],  speed:2.4, y:[-6,8]},   // silvery sardine-like fish
+  {n:30, size:0.42, cols:[0xf2d13a,0xe8b82c], spread:[4,1.5,3],  speed:1.4, y:[-12,-4]}, // yellow reef fish
+  {n:24, size:0.5,  cols:[0xe9772f,0xf3f0e8], spread:[4,1.6,3.5],speed:1.2, y:[-12,-5]}, // orange and white
+  {n:45, size:0.28, cols:[0x3f8fd8,0x2a5fa8], spread:[5,2,4],    speed:2.0, y:[-9,2]},   // small blue fish
+  {n:16, size:0.7,  cols:[0x8fa3a8,0x6f8790], spread:[6,2,5],    speed:1.8, y:[-4,10]},  // larger grey fish
+  {n:1,  size:1.8,  cols:[0x6c6a55],          spread:[0,0,0],    speed:0.7, y:[-12,-8]}, // solitary groupers
+  {n:1,  size:1.5,  cols:[0x5b6c74],          spread:[0,0,0],    speed:0.8, y:[-12,-6]},
+];
+const FISH_N = SCHOOLS.reduce((s,c)=>s+c.n,0);
+const fish = new THREE.InstancedMesh(fishGeo, fishMat, FISH_N); fish.frustumCulled=false; sealife.add(fish);
+const schools = [];
+{ let k=0; const col=new THREE.Color();
+  for(const c of SCHOOLS){
+    const s={...c, yr:c.y, x:(lrnd()*2-1)*SEA_WRAP, z:(lrnd()*2-1)*SEA_WRAP, y:c.y[0]+lrnd()*(c.y[1]-c.y[0]), h:lrnd()*6.3, ph:lrnd()*9, first:k, members:[]};
+    for(let i=0;i<c.n;i++){ s.members.push({ox:(lrnd()*2-1)*c.spread[0], oy:(lrnd()*2-1)*c.spread[1], oz:(lrnd()*2-1)*c.spread[2], ph:lrnd()*9, sc:c.size*(0.85+lrnd()*0.3)});
+      col.set(c.cols[i%c.cols.length]).multiplyScalar(0.85+lrnd()*0.3); fish.setColorAt(k++, col); }
+    schools.push(s); }
+}
+// keep a point at least `clear` metres from the hull axis; returns the push (world, relative to the boat)
+const hullDir=new THREE.Vector3(), tmpV=new THREE.Vector3();
+function hullPush(x,y,z,clear){
+  const by=nautilus.position.y, t=Math.max(XS,Math.min(L,(x)*hullDir.x+(y-by)*hullDir.y+(z)*hullDir.z));
+  tmpV.set(x-hullDir.x*t, y-by-hullDir.y*t, z-hullDir.z*t); const d=tmpV.length();
+  return d<clear ? tmpV.multiplyScalar((clear-d)/Math.max(d,0.01)) : null;
+}
+const fM=new THREE.Matrix4(), fQ=new THREE.Quaternion(), fE=new THREE.Euler(0,0,0,'YZX'), fP=new THREE.Vector3(), fS=new THREE.Vector3();
+function updateFish(dt,t){
+  hullDir.set(Math.cos(sim.heading)*Math.cos(sim.pitch), Math.sin(sim.pitch), -Math.sin(sim.heading)*Math.cos(sim.pitch));
+  for(const s of schools){
+    // wander: a slow, smooth change of heading and depth
+    s.h += Math.sin(t*0.13+s.ph)*dt*0.25 + Math.sin(t*0.051+s.ph*2)*dt*0.15;
+    s.x += Math.cos(s.h)*s.speed*dt; s.z += -Math.sin(s.h)*s.speed*dt;
+    s.y += Math.sin(t*0.09+s.ph)*dt*0.3; s.y=Math.min(Math.max(s.y, s.yr[0]), s.yr[1]);   // each kind keeps to its depth band
+    const cx=wrapC(s.x-travel.x,SEA_WRAP), cz=wrapC(s.z-travel.z,SEA_WRAP);
+    // steer around the Nautilus
+    const push=hullPush(cx,s.y,cz,13+s.spread[0]);
+    if(push){ s.x+=push.x*Math.min(1,dt*2); s.y+=push.y*Math.min(1,dt*2); s.z+=push.z*Math.min(1,dt*2);
+      s.h += Math.sign(push.x*Math.sin(s.h)+push.z*Math.cos(s.h)||1)*dt*0.8; }
+    // stay above the sand
+    const floor=SEABED_Y+seaH(cx+travel.x,cz+travel.z)+1.2+s.spread[1];
+    if(s.y<floor) s.y+=(floor-s.y)*Math.min(1,dt*2);
+    const ch=Math.cos(s.h), sh=Math.sin(s.h);
+    s.members.forEach((m,i)=>{
+      const wob=Math.sin(t*0.8+m.ph);
+      const lx=m.ox+wob*0.4, lz=m.oz+Math.cos(t*0.6+m.ph)*0.4, ly=m.oy+Math.sin(t*0.7+m.ph*1.3)*0.25;
+      fP.set(cx+lx*ch+lz*sh, s.y+ly, cz-lx*sh+lz*ch);
+      fE.set(0, s.h+wob*0.12, Math.sin(t*0.5+m.ph)*0.08); fQ.setFromEuler(fE); fS.setScalar(m.sc);
+      fM.compose(fP,fQ,fS); fish.setMatrixAt(s.first+i,fM); });
+  }
+  fish.instanceMatrix.needsUpdate=true;
+}
+
+// jellyfish: a pulsing translucent bell with trailing tentacles
+const jellies=[];
+{ const bellGeo=new THREE.SphereGeometry(1,28,14,0,Math.PI*2,0,Math.PI/2); bellGeo.scale(1,0.75,1);
+  const cols=[0xf0b8d8,0xb8d8f0,0xe8d0f8];
+  for(let i=0;i<9;i++){
+    const c=cols[i%3], g=new THREE.Group();
+    const bell=new THREE.Mesh(bellGeo,new THREE.MeshStandardMaterial({color:c,emissive:c,emissiveIntensity:0.35,transparent:true,opacity:0.45,roughness:0.3,side:THREE.DoubleSide,depthWrite:false}));
+    g.add(bell);
+    const N=8, P=12, pos=new Float32Array(N*P*2*3), lg=new THREE.BufferGeometry(); lg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    const lines=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:c,transparent:true,opacity:0.5,depthWrite:false})); lines.frustumCulled=false; g.add(lines);
+    const s=0.5+lrnd()*0.7; g.scale.setScalar(s);
+    sealife.add(g);
+    jellies.push({g,bell,lines,N,P,x:(lrnd()*2-1)*SEA_WRAP*0.6,z:(lrnd()*2-1)*SEA_WRAP*0.6,y:-8+lrnd()*20,ph:lrnd()*9,len:2.5+lrnd()*2.5});
+  } }
+function updateJellies(dt,t){
+  for(const j of jellies){
+    const beat=Math.sin(t*1.8+j.ph), k=1+0.13*beat;
+    j.bell.scale.set(k,1/k,k);
+    j.y += dt*(0.06+Math.max(0,-beat)*0.35) - dt*0.08;                  // each contraction lifts it a little
+    if(j.y>16) j.y=-10;
+    const x=wrapC(j.x-travel.x,SEA_WRAP*0.6), z=wrapC(j.z-travel.z,SEA_WRAP*0.6);
+    const push=hullPush(x,j.y,z,10); if(push){ j.x+=push.x*dt; j.z+=push.z*dt; j.y+=push.y*dt; }
+    j.g.position.set(x,j.y,z); j.g.rotation.y=t*0.05+j.ph;
+    const pos=j.lines.geometry.attributes.position.array; let w=0;
+    for(let a=0;a<j.N;a++){ const ang=a/j.N*Math.PI*2, r=0.75*k;
+      let px=Math.cos(ang)*r, py=0, pz=Math.sin(ang)*r;
+      for(let p=1;p<=j.P;p++){ const f=p/j.P;
+        const nx=Math.cos(ang)*r*(1-f*0.5)+Math.sin(t*1.3+j.ph+p*0.6+a)*0.18*f, ny=-f*j.len, nz=Math.sin(ang)*r*(1-f*0.5)+Math.cos(t*1.1+j.ph+p*0.5+a)*0.18*f;
+        pos[w++]=px; pos[w++]=py; pos[w++]=pz; pos[w++]=nx; pos[w++]=ny; pos[w++]=nz; px=nx; py=ny; pz=nz; } }
+    j.lines.geometry.attributes.position.needsUpdate=true;
+  }
+}
+
+// rays: a wide diamond body whose wing tips flap in a slow wave, with a thin tail
+const rayGeo=(()=>{
+  const g=new THREE.PlaneGeometry(2.6,6,10,24), p=g.attributes.position;
+  for(let i=0;i<p.count;i++){ const x=p.getX(i), y=p.getY(i), f=Math.abs(y)/3;
+    const half=1.3*Math.pow(Math.max(0,1-f),0.7); p.setXYZ(i, x/1.3*half - f*1.1 + 0.3, y, 0); }
+  g.rotateX(-Math.PI/2); g.computeVertexNormals();
+  const tail=new THREE.CylinderGeometry(0.015,0.05,3.2,5); tail.rotateZ(Math.PI/2); tail.translate(-2.4,0,0);
+  return mergeGeometries([g.toNonIndexed(), tail.toNonIndexed()]);
+})();
+const rayMat = swimShader(new THREE.MeshStandardMaterial({color:0x3a4248,roughness:0.6,side:THREE.DoubleSide}),
+  `float ph=float(gl_InstanceID)*2.1; float span=abs(position.z)/3.0;
+   transformed.y += sin(uTime*1.5+ph-span*1.8)*0.9*pow(span,1.6);`);
+const mantas = new THREE.InstancedMesh(rayGeo, rayMat, 3); mantas.frustumCulled=false; sealife.add(mantas);
+const rayState=[0,1,2].map(i=>({ax:(lrnd()*2-1)*SEA_WRAP*0.7, az:(lrnd()*2-1)*SEA_WRAP*0.7, r:18+lrnd()*20, a:lrnd()*6.3, w:(lrnd()<0.5?-1:1)*(0.05+lrnd()*0.03), y:-11+lrnd()*5, ph:lrnd()*9, s:0.9+lrnd()*0.6}));
+function updateRays(dt,t){
+  rayState.forEach((r,i)=>{
+    r.a+=r.w*dt;
+    const sx=r.ax+Math.cos(r.a)*r.r, sz=r.az-Math.sin(r.a)*r.r;
+    const x=wrapC(sx-travel.x,SEA_WRAP*0.7), z=wrapC(sz-travel.z,SEA_WRAP*0.7);
+    let y=Math.max(r.y+Math.sin(t*0.2+r.ph)*1.5, SEABED_Y+seaH(x+travel.x,z+travel.z)+1.5);
+    const push=hullPush(x,y,z,12); if(push){ r.ax+=push.x*dt; r.az+=push.z*dt; }
+    const h=r.a+(r.w>0?Math.PI/2:-Math.PI/2);                              // tangent to its circle
+    fP.set(x,y,z); fE.set(Math.sin(t*0.3+r.ph)*0.1, h, 0); fQ.setFromEuler(fE); fS.setScalar(r.s);
+    fM.compose(fP,fQ,fS); mantas.setMatrixAt(i,fM); });
+  mantas.instanceMatrix.needsUpdate=true;
+}
+function updateSeaLife(dt,t){ lifeTime.value=t; updateFish(dt,t); updateJellies(dt,t); updateRays(dt,t); }
+
+// ---------------- foam wake ----------------
+// A ribbon of foam laid on the water behind the stern. Its points are stored in sea coordinates
+// (where the stern passed), so the wake stays where it was made and follows every turn of the rudder.
+// The vertex shader uses the same waves as the water, so the foam rides on them.
+const WAKE_N = 140, WAKE_STEP = 1.6, WAKE_LIFE = 45;          // points, metres between points, seconds to dissolve
+const foamWaterY = {value:3};
+// where the floating hull leaves and enters the water (the waterline is 3 m above the axis)
+let WATER_AFT = 0, WATER_FWD = 0;
+for(let x=0; x>XS; x-=0.1){ if(hullR(x)<3){ WATER_AFT=x; break; } }
+for(let x=0; x<L; x+=0.1){ if(hullR(x)<3){ WATER_FWD=x; break; } }
+const wake = (()=>{
+  const pts = [];                                               // {x,z,t,s}: sea position, time laid, strength
+  const g = new THREE.BufferGeometry();
+  const pos = new Float32Array(WAKE_N*2*3), side = new Float32Array(WAKE_N*2), age = new Float32Array(WAKE_N*2), str = new Float32Array(WAKE_N*2);
+  for(let i=0;i<WAKE_N;i++){ side[i*2]=-1; side[i*2+1]=1; }
+  const idx=[]; for(let i=0;i<WAKE_N-1;i++){ const a=i*2; idx.push(a,a+1,a+2, a+1,a+3,a+2); }
+  g.setIndex(idx);
+  g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  g.setAttribute('aSide',new THREE.BufferAttribute(side,1));
+  g.setAttribute('aAge',new THREE.BufferAttribute(age,1));
+  g.setAttribute('aStr',new THREE.BufferAttribute(str,1));
+  const mat = foamMaterial();
+  const mesh = new THREE.Mesh(g, mat); mesh.frustumCulled=false; mesh.renderOrder=2; scene.add(mesh);
+  return { mesh, pts, pos, age, str, g, mat };
+})();
+// foam shader shared by the wake and the bow wave: aSide runs across a strip (-1..1), aAge along it (0 new, 1 old)
+function foamMaterial(){
+  return new THREE.ShaderMaterial({
+    uniforms:{ uTime:waterUniforms.uTime, uOff:waterUniforms.uOff, uWaterY:foamWaterY, uUnder:waterUniforms.uUnder, uStr:{value:1} },
+    transparent:true, depthWrite:false, side:THREE.DoubleSide,
+    vertexShader:`uniform float uTime, uWaterY; uniform vec2 uOff; attribute float aSide, aAge, aStr;
+      varying float vSide, vAge, vStr; varying vec2 vSea;
+      float wave(vec2 p, vec2 d, float f, float a, float s){ return a*sin(dot(p,d)*f + uTime*s); }
+      float H(vec2 p){ return wave(p,normalize(vec2(1.,.3)),.12,.35,1.1)+wave(p,normalize(vec2(-.4,1.)),.21,.18,1.6)+wave(p,normalize(vec2(.7,-.6)),.5,.06,2.3)+wave(p,normalize(vec2(.2,.9)),.9,.03,3.1); }
+      void main(){ vec4 w=modelMatrix*vec4(position,1.); vec2 sea=w.xz+uOff; w.y=uWaterY+H(sea)+0.07;
+        vSide=aSide; vAge=aAge; vStr=aStr; vSea=sea; gl_Position=projectionMatrix*viewMatrix*w; }`,
+    fragmentShader:`uniform float uTime, uUnder, uStr; varying float vSide, vAge, vStr; varying vec2 vSea;
+      float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float noise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+        return mix(mix(hash(i),hash(i+vec2(1,0)),f.x), mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x), f.y); }
+      void main(){
+        float n = noise(vSea*0.9+uTime*0.15)*0.55 + noise(vSea*2.7-uTime*0.25)*0.3 + noise(vSea*7.)*0.15;
+        float young = 1.-vAge;
+        float churn = exp(-vSide*vSide*2.5)*pow(young,1.3);                 // turbulent water thrown back by the screw
+        float edge  = exp(-pow(abs(vSide)-0.82,2.)*35.)*(0.35+0.65*young);  // the two spreading arms
+        float a = (churn*1.15 + edge*0.75) * smoothstep(0.42-0.25*young, 0.78, n);
+        a *= vStr * uStr * smoothstep(1.,0.85,abs(vSide));
+        if(uUnder>.5) a*=0.55;
+        gl_FragColor = vec4(vec3(0.93,0.97,1.0), clamp(a,0.,0.9)); }`
+  });
+}
+// bow wave: two arms of foam from the point where the bow cuts the water, opening at about 20 degrees
+const bowWave = (()=>{
+  const N=24, LEN=30, pos=[], side=[], age=[], str=[], idx=[];
+  for(const sd of [-1,1]){
+    const base=pos.length/3;
+    for(let i=0;i<N;i++){ const u=i/(N-1);
+      const cx=WATER_FWD-u*LEN, cz=sd*(0.3+Math.sqrt(Math.max(hullR(cx)**2-9,0))*(1-u)+u*LEN*0.36);
+      const half=0.5+u*2.4, dx=-1, dz=sd*0.36, l=Math.hypot(dx,dz);
+      for(const k of [-1,1]){ pos.push(cx+(-dz/l)*half*k, 0, cz+(dx/l)*half*k); side.push(k); age.push(0.25+u*0.75); str.push(1-u*0.6); }
+      if(i<N-1){ const a=base+i*2; idx.push(a,a+1,a+2, a+1,a+3,a+2); }
+    }
+  }
+  const g=new THREE.BufferGeometry(); g.setIndex(idx);
+  g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
+  g.setAttribute('aSide',new THREE.Float32BufferAttribute(side,1));
+  g.setAttribute('aAge',new THREE.Float32BufferAttribute(age,1));
+  g.setAttribute('aStr',new THREE.Float32BufferAttribute(str,1));
+  const m=new THREE.Mesh(g, foamMaterial()); m.frustumCulled=false; m.renderOrder=2; scene.add(m);
+  return m;
+})();
+// called every frame after the boat has moved; sternX: the stern position along the hull axis
+function updateWake(t, travelX, travelZ, heading, sternX, strength){
+  const W=wake, c=Math.cos(heading), s=-Math.sin(heading);
+  const sx = travelX + c*sternX, sz = travelZ + s*sternX;          // stern in sea coordinates
+  // pts[0] rides on the stern; once it is WAKE_STEP past the last fixed point (pts[1]) it is left on the water
+  const fixed = W.pts[1];
+  if(W.pts.length<2 || Math.hypot(sx-fixed.x, sz-fixed.z) > WAKE_STEP) W.pts.unshift({x:sx,z:sz,t,s:strength});
+  else { const h=W.pts[0]; h.x=sx; h.z=sz; h.t=t; h.s=strength; }
+  if(W.pts.length>WAKE_N) W.pts.length=WAKE_N;
+  const n=W.pts.length;
+  for(let i=0;i<WAKE_N;i++){
+    const P=W.pts[Math.min(i,n-1)];
+    // direction of the trail at this point, for the ribbon width
+    const A=W.pts[Math.max(0,Math.min(i-1,n-1))], B=W.pts[Math.min(i+1,n-1)];
+    let dx=A.x-B.x, dz=A.z-B.z; const L=Math.hypot(dx,dz)||1; dx/=L; dz/=L;
+    if(n<2){ dx=c; dz=s; }
+    const dist=i*WAKE_STEP, half=1.6+dist*0.17;                      // the wake spreads as it gets older
+    const life=Math.max(0,1-(t-P.t)/WAKE_LIFE);
+    for(const k of [0,1]){ const sd=k?1:-1, j=(i*2+k)*3;
+      W.pos[j]   = P.x - travelX + (-dz)*half*sd;
+      W.pos[j+1] = 0;
+      W.pos[j+2] = P.z - travelZ + ( dx)*half*sd;
+      W.age[i*2+k] = Math.min(1, dist/(WAKE_N*WAKE_STEP));
+      W.str[i*2+k] = i<n ? P.s*life : 0;
+    }
+  }
+  W.g.attributes.position.needsUpdate=true; W.g.attributes.aAge.needsUpdate=true; W.g.attributes.aStr.needsUpdate=true;
+}
+// sand clouds raised from the bottom: positions kept in sea coordinates so the cloud stays where it was raised
+const DUST_N = 1600;
+const dust = (()=>{
+  const g=new THREE.BufferGeometry();
+  g.setAttribute('position',new THREE.BufferAttribute(new Float32Array(DUST_N*3).fill(-1000),3));
+  g.setAttribute('aA',new THREE.BufferAttribute(new Float32Array(DUST_N),1));
+  g.setAttribute('aS',new THREE.BufferAttribute(new Float32Array(DUST_N),1));
+  const m=new THREE.ShaderMaterial({ uniforms:{uScale:{value:500}}, transparent:true, depthWrite:false,
+    vertexShader:`uniform float uScale; attribute float aA, aS; varying float vA;
+      void main(){ vec4 mv=modelViewMatrix*vec4(position,1.); vA=aA; gl_PointSize=aS*uScale/max(1.,-mv.z); gl_Position=projectionMatrix*mv; }`,
+    fragmentShader:`varying float vA; void main(){ float r=length(gl_PointCoord-.5)*2.; float a=vA*smoothstep(1.,0.,r)*0.55;
+      gl_FragColor=vec4(0.66,0.6,0.47,a); }` });
+  const p=new THREE.Points(g,m); p.frustumCulled=false; scene.add(p); return p; })();
+const dd={ x:new Float32Array(DUST_N), y:new Float32Array(DUST_N), z:new Float32Array(DUST_N), vx:new Float32Array(DUST_N), vy:new Float32Array(DUST_N), vz:new Float32Array(DUST_N),
+  life:new Float32Array(DUST_N), max:new Float32Array(DUST_N), next:0 };
+// wx,wz: world position relative to the boat; dirx,dirz: optional main direction of the jet
+function dustBurst(wx,wy,wz,count,power,dirx,dirz){
+  for(let k=0;k<count;k++){ const i=dd.next; dd.next=(dd.next+1)%DUST_N;
+    const a=Math.random()*Math.PI*2, sp=power*(0.4+Math.random());
+    let vx=Math.cos(a)*sp, vz=Math.sin(a)*sp; if(dirx!==undefined){ vx=vx*0.4+dirx*sp*1.5; vz=vz*0.4+dirz*sp*1.5; }
+    dd.x[i]=wx+travel.x+(Math.random()-.5)*3; dd.y[i]=wy+Math.random()*0.5; dd.z[i]=wz+travel.z+(Math.random()-.5)*3;
+    dd.vx[i]=vx; dd.vz[i]=vz; dd.vy[i]=power*(0.15+Math.random()*0.35);
+    dd.max[i]=dd.life[i]=4+Math.random()*5; }
+}
+function updateDust(dt){
+  const P=dust.geometry.attributes.position, A=dust.geometry.attributes.aA, S=dust.geometry.attributes.aS, k=Math.exp(-dt*1.1);
+  for(let i=0;i<DUST_N;i++){
+    if(dd.life[i]<=0){ if(A.getX(i)!==0){ A.setX(i,0); P.setXYZ(i,-1000,-1000,-1000); } continue; }
+    dd.life[i]-=dt; dd.vx[i]*=k; dd.vz[i]*=k; dd.vy[i]=dd.vy[i]*k-dt*0.04;   // water slows it, the sand settles slowly
+    dd.x[i]+=dd.vx[i]*dt; dd.y[i]+=dd.vy[i]*dt; dd.z[i]+=dd.vz[i]*dt;
+    const age=1-dd.life[i]/dd.max[i];
+    P.setXYZ(i, dd.x[i]-travel.x, dd.y[i], dd.z[i]-travel.z);
+    A.setX(i, Math.min(1,age*8)*(1-age)); S.setX(i, 1.5+age*5);
+  }
+  P.needsUpdate=A.needsUpdate=S.needsUpdate=true;
+  dust.material.uniforms.uScale.value = innerHeight/(2*Math.tan(camera.fov*Math.PI/360));
+}
+// marine snow particles
+const snow = (()=>{
+  const n=4000, g=new THREE.BufferGeometry(), a=new Float32Array(n*3);
+  for(let i=0;i<n;i++){ a[i*3]=(Math.random()-.5)*160; a[i*3+1]=(Math.random()-.5)*40; a[i*3+2]=(Math.random()-.5)*160; }
+  g.setAttribute('position',new THREE.BufferAttribute(a,3));
+  // each flake gets its own size (mostly tiny specks, a few larger flakes) and brightness
+  const sz=new Float32Array(n), br=new Float32Array(n);
+  for(let i=0;i<n;i++){ sz[i]=0.04+Math.pow(Math.random(),3)*0.16; br[i]=0.45+Math.random()*0.55; }
+  g.setAttribute('aS',new THREE.BufferAttribute(sz,1)); g.setAttribute('aB',new THREE.BufferAttribute(br,1));
+  // drawn as soft round specks; flakes right in front of the camera are capped in size and fade out,
+  // so they never fill the view as big blocks
+  const m=new THREE.ShaderMaterial({ uniforms:{uScale:{value:500}}, transparent:true, depthWrite:false,
+    vertexShader:`uniform float uScale; attribute float aS, aB; varying float vB;
+      void main(){ vec4 mv=modelViewMatrix*vec4(position,1.); float d=-mv.z;
+        vB=aB*smoothstep(0.6,3.,d)*(1.-smoothstep(45.,80.,d));
+        gl_PointSize=min(7., aS*uScale/max(.5,d)); gl_Position=projectionMatrix*mv; }`,
+    fragmentShader:`varying float vB; void main(){ float r=length(gl_PointCoord-.5)*2.; if(r>1.) discard;
+      float a=vB*(1.-smoothstep(.35,1.,r))*0.7; gl_FragColor=vec4(0.82,0.92,0.95,a); }` });
+  const pts=new THREE.Points(g,m); pts.frustumCulled=false;
+  scene.add(pts); return pts;
+})();
+// god rays
+const rays = new THREE.Group(); scene.add(rays);
+{
+  const rm=new THREE.MeshBasicMaterial({color:0x9fd6e8,transparent:true,opacity:0.05,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+  for(let i=0;i<16;i++){
+    const r=new THREE.Mesh(new THREE.CylinderGeometry(1.5+Math.random()*2,4+Math.random()*4,70,16,1,true),rm);
+    r.position.set((Math.random()-.5)*120,0,(Math.random()-.5)*120); r.rotation.z=0.25; r.rotation.x=0.1; r.userData.ph=Math.random()*6; r.userData.bx=r.position.x; r.userData.bz=r.position.z;
+    rays.add(r);
+  }
+}
+// propeller bubbles (submerged): born on the screw disc, thrown aft by the water flowing past the hull,
+// swirled by the blades, spreading and rising as they go. More bubbles the faster the screw turns.
+const BUB_N = 2600;
+const bubbles=(()=>{ const g=new THREE.BufferGeometry(), a=new Float32Array(BUB_N*3).fill(-1000);
+  g.setAttribute('position',new THREE.BufferAttribute(a,3));
+  const c=document.createElement('canvas'); c.width=c.height=64; const x=c.getContext('2d');
+  const gr=x.createRadialGradient(32,32,4,32,32,30); gr.addColorStop(0,'rgba(255,255,255,0.15)'); gr.addColorStop(0.7,'rgba(230,250,255,0.35)');
+  gr.addColorStop(0.85,'rgba(255,255,255,0.95)'); gr.addColorStop(1,'rgba(255,255,255,0)'); x.fillStyle=gr; x.fillRect(0,0,64,64);
+  const p=new THREE.Points(g,new THREE.PointsMaterial({color:0xeaffff,size:0.45,map:new THREE.CanvasTexture(c),transparent:true,opacity:0.95,depthWrite:false}));
+  p.frustumCulled=false; nautilus.add(p); return p; })();
+const bub = { life:new Float32Array(BUB_N), ang:new Float32Array(BUB_N), rad:new Float32Array(BUB_N), x:new Float32Array(BUB_N), y:new Float32Array(BUB_N), next:0, acc:0 };
+function updateBubbles(dt){
+  const P=bubbles.geometry.attributes.position, flow=sim.speed*0.5144, spin=sim.screw;
+  // spawn
+  bub.acc += dt*(spin>0.01 ? 150+spin*1700 : 0);
+  while(bub.acc>=1){ bub.acc-=1; const i=bub.next; bub.next=(bub.next+1)%BUB_N;
+    bub.life[i]=0.8+Math.random()*1.2; bub.ang[i]=Math.random()*Math.PI*2; bub.rad[i]=0.6+Math.random()*2.4;
+    bub.x[i]=XS-0.6-Math.random()*0.4; bub.y[i]=0; }
+  // move
+  for(let i=0;i<BUB_N;i++){
+    if(bub.life[i]<=0){ if(P.getX(i)>-999) P.setXYZ(i,-1000,-1000,-1000); continue; }
+    bub.life[i]-=dt;
+    bub.x[i]   -= dt*(flow*0.85 + 1.5 + 6*spin);            // the screw race pushes them aft, faster than the water around
+    bub.ang[i] += dt*spin*6/(1+bub.rad[i]*0.3);              // swirl of the blades
+    bub.rad[i] += dt*(0.25+spin*0.6);                        // the jet widens
+    bub.y[i]   += dt*(0.5+Math.random()*0.4);                // and the air climbs toward the surface
+    P.setXYZ(i, bub.x[i], Math.cos(bub.ang[i])*bub.rad[i]+bub.y[i], Math.sin(bub.ang[i])*bub.rad[i]);
+  }
+  P.needsUpdate=true;
+}
+
+let env='surface';
+function setEnv(e){
+  env=e;
+  document.querySelectorAll('[data-env]').forEach(b=>b.classList.toggle('on',b.dataset.env===e));
+  const under = e==='under', studio = e==='studio';
+  sky.visible = !studio && !under;
+  water.visible = !studio;
+  waterUniforms.uUnder.value = under?1:0;
+  water.position.y = under ? 22 : 3.0;   // platform ~3 ft (≈1 m) above water, as in ch. XIII
+  wake.mesh.visible = bowWave.visible = !studio; foamWaterY.value = water.position.y;
+  seabed.visible = under; sealife.visible = under; dust.visible = under; snow.visible = under; rays.visible = under; bubbles.visible = under;
+  if(under){ scene.fog=new THREE.FogExp2(0x0b3c55,0.0135); scene.background=new THREE.Color(0x0b3c55);
+    hemi.intensity=0.5; hemi.color.set(0x7fc8e0); sun.intensity=0.8; sun.color.set(0x9fd8ff); renderer.toneMappingExposure=1.15; beamMat.uniforms.uOp.value=0.55;}
+  else if(studio){ scene.fog=null; scene.background=new THREE.Color(0x0c1014);
+    hemi.intensity=0.7; hemi.color.set(0xcfe4ff); sun.intensity=2.4; sun.color.set(0xfff1d6); renderer.toneMappingExposure=1.0; beamMat.uniforms.uOp.value=0.18;}
+  else { scene.fog=new THREE.Fog(0xc8d6dc,200,850); scene.background=null;
+    hemi.intensity=0.8; hemi.color.set(0xcfe4ff); sun.intensity=2.2; sun.color.set(0xfff1d6); renderer.toneMappingExposure=1.0; beamMat.uniforms.uOp.value=0.12;}
+}
+document.querySelectorAll('[data-env]').forEach(b=>b.onclick=()=>setEnv(b.dataset.env));
+setEnv('surface');
+
+/* ---------------- toggles ---------------- */
+let lampOn=true, propOn=true, xray=false, labelsOn=false;   // labels start off: the button "Etiquetas" shows them
+const bShut=document.getElementById('bShut');
+bShut.onclick=()=>{ shutterTarget = shutterTarget?0:1; bShut.classList.toggle('on',!!shutterTarget); };
+const bLamp=document.getElementById('bLamp');
+bLamp.onclick=()=>{ lampOn=!lampOn; bLamp.classList.toggle('on',lampOn); lampSpot.visible=lampOn; lampGlow.visible=lampOn; beam.visible=lampOn; M.lamp.emissiveIntensity=lampOn?4:0.1; M.lanternLens.emissiveIntensity=lampOn?1.2:0; M.lanternRing.emissiveIntensity=lampOn?0.8:0; };
+
+/* ---------------- pilotage (rudder, inclined planes, ballast, screw) ---------------- */
+nautilus.rotation.order='YZX';
+const $=id=>document.getElementById(id);
+const sim={heading:0,pitch:0,depth:0,vy:0,speed:0,rud:0,pla:0,screw:0,grounded:false};
+const sSpd=$('sSpd'), sRud=$('sRud'), sPla=$('sPla'), sBal=$('sBal'), pNote=$('pNote');
+function note(){
+  const spd=+sSpd.value, rud=+sRud.value, pla=+sPla.value, bal=+sBal.value;
+  $('oSpd').textContent = propOn ? spd+' nós' : 'desengatada';
+  $('oRud').textContent = rud===0?'a meio':(Math.abs(rud)+'° '+(rud>0?'bombordo':'estibordo'));
+  $('oPla').textContent = pla===0?'paralelos':(Math.abs(pla)+'° '+(pla>0?'mergulhar':'subir'));
+  $('oBal').textContent = bal+'%';
+  let n;
+  if(!propOn) n = bal<50
+    ? 'Hélice desengatada: sem impulso, os planos não seguram mais o casco, que é mais leve que a água, e a pressão da água o faz subir na vertical “como um balão”.'
+    : 'Hélice desengatada, mas com os reservatórios cheios além da metade o casco é mais pesado que a água: não sobe. Esvazie os reservatórios para subir “como um balão”.';
+  else if(bal<50 && sim.depth>-0.3) n='Lastro abaixo da metade: o Nautilus flutua com um décimo do casco fora d’água. Encha os reservatórios até perto da metade e use os planos inclinados para mergulhar.';
+  else if(pla===0) n = bal<48 ? 'Planos paralelos ao casco: com pouco lastro, o Nautilus sobe devagar.' : bal>52 ? 'Planos paralelos ao casco: com lastro demais, o Nautilus desce devagar.' : 'Planos paralelos ao casco e lastro na metade: o Nautilus segue na horizontal.';
+  else n='Planos inclinados: sob o impulso da hélice, o Nautilus '+(pla>0?'desce':'sobe')+' em diagonal.';
+  if(rud!==0 && propOn && spd>0) n+=' O leme o faz virar a '+(rud>0?'bombordo.':'estibordo.');
+  if(sim.grounded && propOn) n = 'O Nautilus está pousado no fundo. Com lastro na metade ou mais, o atrito com a areia o segura, mesmo com a hélice girando. Para sair: esvazie os reservatórios; se o excesso de lastro for pequeno, basta inclinar os planos para subir.';
+  if(autoDive && autoDive.on && autoDive.surface)
+    n = 'Subida automática: o lastro fica mais leve e a proa sobe; perto da superfície o Nautilus freia, e ao emergir os reservatórios são esvaziados para ele flutuar. Clique de novo para parar a subida.';
+  else if(autoDive && autoDive.on){
+    const m=sDive.value, st=autoDive.state;
+    n = 'Mergulho automático até '+m+' m: '+
+      (st==='hold' ? 'cota atingida; os planos e o lastro mantêm o Nautilus nela.' :
+       st==='bottom' ? 'o fundo está acima da cota; o Nautilus pousou nele.' :
+       st==='up' ? 'subindo até a cota, com lastro mais leve e a proa para cima.' :
+       'descendo, com lastro mais pesado e a proa para baixo.') +
+      ' Mexa nos planos ou no lastro para retomar o controle.';
+  }
+  pNote.textContent=n;
+}
+[sSpd,sRud,sPla,sBal].forEach(el=>el.addEventListener('input',note));
+const bShip=$('bShip');
+bShip.onclick=()=>{ propOn=!propOn; bShip.classList.toggle('on',!propOn); bShip.textContent=propOn?'Desengatar hélice':'Engatar hélice'; note(); };
+$('bCenter').onclick=()=>{ sRud.value=0; sPla.value=0; note(); };
+// "Voltar à superfície" is wired to the autopilot below (automatic dive)
+// side panels: the ✕ closes a panel, the button left in its corner ("Ficha técnica", "Raio-X", "Pilotagem") reopens it
+function syncPanelButtons(){
+  const left = xray ? $('xrList') : $('info');
+  document.body.classList.toggle('info-off', left.classList.contains('hide'));
+  document.body.classList.toggle('pilot-off', $('pilotPanel').classList.contains('hide'));
+}
+function setPanel(id, show){
+  $(id).classList.toggle('hide', !show);
+  try{ localStorage.setItem('nautilus-panel-'+id, show?'1':'0'); }catch(e){}
+  syncPanelButtons();
+}
+document.querySelectorAll('.pclose').forEach(x=>x.onclick=()=>setPanel(x.dataset.for,false));
+$('pilotToggle').onclick=()=>{ pilotStepAside=false; setPanel('pilotPanel', $('pilotPanel').classList.contains('hide')); };
+// restore what the viewer chose last time (desktop only; on a phone the panels start closed)
+if(innerWidth>=760) for(const id of ['info','pilotPanel','xrList']){
+  try{ if(localStorage.getItem('nautilus-panel-'+id)==='0') $(id).classList.add('hide'); }catch(e){} }
+if(innerWidth<760) $('pilotPanel').classList.add('hide');
+note();
+// environment buttons: keep the view on the boat; entering the submerged scene dives with the tanks half full
+// change scene keeping the camera where it was relative to the boat
+function switchEnv(e, y0=nautilus.position.y){
+  setEnv(e);
+  const dy=boatY(sim.depth)-y0; nautilus.position.y+=dy; camera.position.y+=dy; controls.target.y+=dy; keepCamUnder();
+  if(e==='surface' && camera.position.y<8) camera.position.y=8;   // above the waves (waterline at y=3)
+}
+document.querySelectorAll('[data-env]').forEach(b=>b.onclick=()=>{
+  const y0=nautilus.position.y;
+  if(b.dataset.env==='under' && sim.depth>-2){ sBal.value=50; sim.depth=-4; sim.vy=0; note(); }
+  switchEnv(b.dataset.env, y0); prevDepth=sim.depth;
+});
+// the scene follows the boat: diving below the deck switches to the submerged view, surfacing back to the surface view.
+// Only crossings switch it, so a scene chosen by hand stays until the boat next dives or surfaces.
+const DIVE_AT=-1.2, SURFACE_AT=-0.15;
+let prevDepth=0;
+function autoEnv(){
+  if(env==='surface' && prevDepth>=DIVE_AT && sim.depth<DIVE_AT) switchEnv('under');
+  else if(env==='under' && prevDepth<=SURFACE_AT && sim.depth>SURFACE_AT) switchEnv('surface');
+  prevDepth=sim.depth;
+}
+// in the submerged scene the camera stays below the surface (y=22), looking up at the hull when it surfaces
+function keepCamUnder(){ if(env!=='under') return;
+  if(camera.position.y>20.5) camera.position.y=20.5;
+  const fl=floorAt(camera.position.x,camera.position.z)+1.2; if(camera.position.y<fl) camera.position.y=fl; }   // and never under the sand
+/* ---------------- automatic dive: planes and ballast driven toward a chosen depth ---------------- */
+const sDive=$('sDive'), bDive=$('bDive');
+var autoDive={on:false, surface:false, state:'', pla:0, bal:0};   // var: note() may run before this line
+const AP={vMax:1.0, brake:0.05, kE:0.5, kP:0.2, kPd:0.5, kB:25, kBd:35};   // autopilot gains
+// the depth gauge is compressed (see the HUD); invert it to turn metres into the simulation's depth
+const depthMeters = d => d*4 + Math.pow(d/14,3)*1944;
+function metersToDepth(m){ let lo=0, hi=14.5; for(let i=0;i<40;i++){ const mid=(lo+hi)/2; if(depthMeters(mid)<m) lo=mid; else hi=mid; } return -(lo+hi)/2; }
+// the same autopilot serves both buttons: "Mergulhar" goes to the chosen depth, "Voltar à superfície" to depth zero
+const bReset=$('bReset');
+function setAutoDive(on, surface=false){
+  autoDive.on=on; autoDive.surface=on&&surface; autoDive.pla=+sPla.value; autoDive.bal=+sBal.value;
+  bDive.classList.toggle('on',on&&!surface); bDive.textContent = on&&!surface ? 'Mergulho automático: ligado' : 'Mergulhar';
+  bReset.classList.toggle('on',on&&surface); bReset.textContent = on&&surface ? 'Subindo à superfície…' : 'Voltar à superfície';
+  note();
+}
+const showDive=()=>{ $('oDive').textContent=sDive.value+' m'; };
+sDive.addEventListener('input',()=>{ showDive(); note(); }); showDive();
+bDive.onclick=()=>setAutoDive(!(autoDive.on&&!autoDive.surface));
+bReset.onclick=()=>{
+  if(autoDive.on&&autoDive.surface){ setAutoDive(false); return; }       // a second click stops the ascent
+  sRud.value=0; if(!propOn) bShip.click();                                // rudder amidships, screw engaged
+  setAutoDive(true,true);
+};
+// any hand on the planes or the ballast, or the other pilot buttons, gives the control back
+[sPla,sBal].forEach(el=>el.addEventListener('input',()=>{ if(autoDive.on) setAutoDive(false); }));
+$('bCenter').addEventListener('click',()=>{ if(autoDive.on) setAutoDive(false); });
+let autoNoteT=0;
+function autoPilot(dt){
+  if(!autoDive.on) return;
+  // surfacing: once the hull floats, empty the tanks so it stays up, level the planes and hand the control back
+  if(autoDive.surface && sim.depth>-0.25){ sPla.value=0; sBal.value=0; setAutoDive(false); return; }
+  const tgt=autoDive.surface ? 0 : metersToDepth(+sDive.value), e=tgt-sim.depth;   // e<0: still has to go down
+  // wanted vertical speed: a braking profile (v = sqrt(2·a·|e|)) so the boat slows in time and does not overshoot
+  const vyDes=Math.sign(e)*Math.min(AP.vMax, Math.sqrt(2*AP.brake*Math.abs(e)), Math.abs(e)*AP.kE);
+  // planes: tilt the hull along the wanted path; they only bite with way on
+  const flow=Math.min(1,(sim.speed/15)**2);
+  const pitchDes=Math.max(-0.35,Math.min(0.35, vyDes*AP.kP + (vyDes-sim.vy)*AP.kPd));
+  const plaCmd = flow>0.05 ? Math.max(-25,Math.min(25,-pitchDes/(0.8*flow)*180/Math.PI)) : 0;
+  // ballast: heavier to go down, lighter to go up, back to neutral (50%) when the depth is held
+  const balCmd = Math.max(20,Math.min(85, 50 - AP.kB*vyDes + AP.kBd*(sim.vy-vyDes)));
+  // levers and pumps take time: limit how fast each one moves
+  autoDive.pla += Math.max(-20*dt,Math.min(20*dt, plaCmd-autoDive.pla));   // levers: up to 20 degrees a second
+  autoDive.bal += Math.max(-12*dt,Math.min(12*dt, balCmd-autoDive.bal));   // pumps: up to 12% a second
+  sPla.value=Math.round(autoDive.pla); sBal.value=Math.round(autoDive.bal);
+  autoDive.state = Math.abs(e)<0.15 && Math.abs(sim.vy)<0.08 ? 'hold' : (e<0 ? 'down' : 'up');
+  if(sim.grounded && e<0) autoDive.state='bottom';
+  autoNoteT-=dt; if(autoNoteT<=0){ autoNoteT=0.25; note(); }
+}
+
+/* ---------------- sound: sea ambience and the screw (Web Audio, generated, no files) ---------------- */
+// Browsers only allow sound after a click, so it starts with the "Som" button.
+const snd={ctx:null, on:false};
+function buildSound(){
+  const ctx=new (window.AudioContext||window.webkitAudioContext)(); snd.ctx=ctx;
+  const master=ctx.createGain(); master.gain.value=0.8; master.connect(ctx.destination); snd.master=master;
+  // shared noise buffers: white and brown (deep rumble)
+  const len=ctx.sampleRate*4, white=ctx.createBuffer(1,len,ctx.sampleRate), brown=ctx.createBuffer(1,len,ctx.sampleRate);
+  { const w=white.getChannelData(0), b=brown.getChannelData(0); let last=0;
+    for(let i=0;i<len;i++){ const r=Math.random()*2-1; w[i]=r; last=(last+0.02*r)/1.02; b[i]=last*3.5; } }
+  const loop=(buf)=>{ const s=ctx.createBufferSource(); s.buffer=buf; s.loop=true; s.start(); return s; };
+  const lfo=(freq,depth,target)=>{ const o=ctx.createOscillator(), g=ctx.createGain(); o.frequency.value=freq; g.gain.value=depth; o.connect(g); g.connect(target); o.start(); };
+  // under water: muffled rumble that slowly swells, plus a soft hiss
+  const uw=ctx.createGain(); uw.gain.value=0; uw.connect(master); snd.uw=uw;
+  { const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=180; const g=ctx.createGain(); g.gain.value=0.55;
+    loop(brown).connect(lp); lp.connect(g); g.connect(uw); lfo(0.07,0.25,g.gain);
+    const hp=ctx.createBiquadFilter(); hp.type='bandpass'; hp.frequency.value=900; hp.Q.value=0.4; const h=ctx.createGain(); h.gain.value=0.025;
+    loop(white).connect(hp); hp.connect(h); h.connect(uw); lfo(0.11,0.012,h.gain); }
+  // at the surface: waves breaking softly, and wind
+  const sf=ctx.createGain(); sf.gain.value=0; sf.connect(master); snd.sf=sf;
+  { const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=500; bp.Q.value=0.35; const g=ctx.createGain(); g.gain.value=0.12;
+    loop(white).connect(bp); bp.connect(g); g.connect(sf); lfo(0.13,0.1,g.gain);
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=300; const r=ctx.createGain(); r.gain.value=0.35;
+    loop(brown).connect(lp); lp.connect(r); r.connect(sf); lfo(0.09,0.2,r.gain); }
+  // the screw: a low thrum at the blade rate, an electric hum from the electromagnets, and the hiss of churned water
+  const pr=ctx.createGain(); pr.gain.value=0; pr.connect(master); snd.pr=pr;
+  { const o=ctx.createOscillator(); o.type='sawtooth'; o.frequency.value=20; snd.thrum=o;
+    const lp=ctx.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=160; lp.Q.value=2;
+    const am=ctx.createGain(); am.gain.value=0.5; const amO=ctx.createOscillator(); amO.frequency.value=4; snd.amO=amO;
+    const amG=ctx.createGain(); amG.gain.value=0.45; amO.connect(amG); amG.connect(am.gain);
+    o.connect(lp); lp.connect(am); am.connect(pr); o.start(); amO.start();
+    const hum=ctx.createOscillator(); hum.frequency.value=100; const hg=ctx.createGain(); hg.gain.value=0.05; hum.connect(hg); hg.connect(pr); hum.start(); snd.hum=hum;
+    const bp=ctx.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=1400; bp.Q.value=0.8; const cg=ctx.createGain(); cg.gain.value=0;
+    loop(white).connect(bp); bp.connect(cg); cg.connect(master); snd.cav=cg; }
+  snd.bubbleT=0;
+}
+// a single bubble: a short sine whose pitch rises as it pops
+function bubbleSound(vol){
+  const ctx=snd.ctx, t=ctx.currentTime, o=ctx.createOscillator(), g=ctx.createGain(), f=250+Math.random()*700;
+  o.frequency.setValueAtTime(f,t); o.frequency.exponentialRampToValueAtTime(f*2.2,t+0.06);
+  g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(vol,t+0.005); g.gain.exponentialRampToValueAtTime(0.0001,t+0.09);
+  o.connect(g); g.connect(snd.master); o.start(t); o.stop(t+0.1);
+}
+function updateSound(dt){
+  if(!snd.on) return;
+  const ctx=snd.ctx, t=ctx.currentTime, under=env==='under', surf=env==='surface', sc=sim.screw;
+  const k=0.4;   // smoothing time constant (s)
+  snd.uw.gain.setTargetAtTime(under?1:0, t, k);
+  snd.sf.gain.setTargetAtTime(surf?1:0, t, k);
+  // the screw sounds louder under water, where the listener is in the same medium
+  const pv = sc<0.01 ? 0 : (under?0.55:surf?0.22:0.35)*(0.25+0.75*sc);
+  snd.pr.gain.setTargetAtTime(pv, t, k);
+  snd.thrum.frequency.setTargetAtTime(14+sc*40, t, k);        // blade rate rises with the screw
+  snd.amO.frequency.setTargetAtTime(1.5+sc*9, t, k);
+  snd.hum.frequency.setTargetAtTime(80+sc*70, t, k);
+  snd.cav.gain.setTargetAtTime((under?0.09:0.04)*sc*sc, t, k);
+  // bubbles: a few from the sea, many more from the screw
+  snd.bubbleT-=dt;
+  if(under && snd.bubbleT<=0){ bubbleSound(0.04+sc*0.05); snd.bubbleT=Math.random()*(1/(0.6+sc*10)); }
+}
+const bSound=$('bSound');
+bSound.onclick=()=>{
+  if(!snd.ctx) buildSound();
+  snd.on=!snd.on; bSound.classList.toggle('on',snd.on); bSound.textContent=snd.on?'Som: ligado':'Som: desligado';
+  if(snd.on) snd.ctx.resume(); else snd.master.gain.setTargetAtTime(0,snd.ctx.currentTime,0.1);
+  if(snd.on) snd.master.gain.setTargetAtTime(0.8,snd.ctx.currentTime,0.2);
+};
+
+const fwd=new THREE.Vector3();
+// Submerged scene: the surface is drawn at y=22 and the sea floor at y=-16, so the same depth range
+// is stretched to fill that column of water. Surface scene: the waterline is at y=3.
+const UNDER_Y0 = 19, UNDER_K = 2.45, SURF_K = 1.25, MIN_DEPTH = -14.5;   // MIN_DEPTH: below the deepest trough of the sea floor
+const KEEL_X = []; for(let x=XS; x<=L; x+=2.5) KEEL_X.push(x); KEEL_X.push(L);   // points of the hull checked against the floor
+function boatY(d){ return env==='under' ? UNDER_Y0 + d*UNDER_K : d*SURF_K; }
+function stepSim(dt,t){
+  // screw: thrust builds the speed up over a few seconds; disengaged, the hull coasts and slows by drag
+  let spdTarget = propOn ? +sSpd.value : 0;
+  let tau = spdTarget>sim.speed ? 5 : (propOn ? 4 : 9);
+  sim.screw += ((propOn ? +sSpd.value/50 : 0) - sim.screw)*Math.min(1,dt/2);   // how fast the screw itself turns
+  if(sim.grounded){
+    // resting on the sand: the friction of the hull holds it, whatever the screw does;
+    // with the planes set to rise, the screw can only drag it slowly until the planes lift the bow
+    const heavy = +sBal.value>=50;
+    spdTarget = (+sPla.value<0 && propOn) ? Math.min(spdTarget, 12) : (heavy ? 0 : spdTarget);
+    if(spdTarget<sim.speed) tau = 0.7;
+  }
+  sim.speed += (spdTarget-sim.speed)*Math.min(1,dt/tau);
+  const v = sim.speed/50;                       // 0..1
+  // control surfaces move toward commanded angles (wheel & tackle / levers)
+  sim.rud += (+sRud.value*Math.PI/180 - sim.rud)*Math.min(1,dt*2);
+  sim.pla += (+sPla.value*Math.PI/180 - sim.pla)*Math.min(1,dt*2);
+  window.__rudder.rotation.y = -sim.rud;
+  if(pilot.userData.wheel) pilot.userData.wheel.rotation.z = sim.rud*5;
+  planes.forEach(p=>p.rotation.z = -sim.pla);
+  // rudder and planes only bite with water flowing past them: their force grows with the square of the speed
+  const flow = Math.min(1, (sim.speed/15)**2);
+  sim.heading += sim.rud * flow * (0.25+v) * dt * 0.7;
+  // pitch: the planes tilt the hull, its own stability brings it back level
+  let pitchTarget = -sim.pla*0.8*flow;
+  // floating, the waterline holds the hull nearly level: the bow can neither climb out nor bury itself deeply
+  if(sim.depth > -0.6) pitchTarget = Math.max(-0.08, Math.min(pitchTarget, 0.04));
+  // on the bottom the hull settles level on its keel; only the planes, with way on, can raise the bow
+  if(sim.grounded) pitchTarget = Math.max(0, pitchTarget);
+  sim.pitch += (pitchTarget - sim.pitch)*Math.min(1,dt*(sim.grounded?0.7:0.8));
+  const bal=+sBal.value/100;
+  // buoyancy: below half full the hull is lighter than the water it displaces (rises), above it is heavier (sinks)
+  let buoy = (0.5-bal)*1.6;
+  // Screw disengaged (Part I, ch. XIII): deep down, Nemo holds a hull that is lighter than water under with the
+  // screw and the planes; shipping the screw lets the water push it up vertically "like a balloon".
+  // That only works while the hull is buoyant: with the tanks over half full it is heavier than water and stays down.
+  if(!propOn && bal<0.5) buoy = Math.max(buoy, 1.4);
+  // the hull moves along its own axis: nose up climbs, nose down dives
+  const climb = Math.sin(sim.pitch)*sim.speed*0.12;
+  sim.vy += ((buoy + climb) - sim.vy)*Math.min(1,dt*0.7);
+  sim.depth += sim.vy*dt;
+  if(sim.depth>0){ sim.depth=0; sim.vy=Math.min(sim.vy,0); }                  // floats with about a tenth out of the water
+  if(sim.depth<MIN_DEPTH){ sim.depth=MIN_DEPTH; sim.vy=Math.max(0,sim.vy); }
+  // contact with the sea floor: check the keel along the whole hull, tilted by the pitch, against the sand
+  // under it (the floor is drawn in the submerged scene, so the test uses that scene's scale)
+  { const ch=Math.cos(sim.heading), sh=-Math.sin(sim.heading), cp=Math.cos(sim.pitch), sp=Math.sin(sim.pitch);
+    const yAxis=UNDER_Y0+sim.depth*UNDER_K; let pen=-1e9, px=0, pwx=0, pwz=0, pg=0;
+    for(const x of KEEL_X){ const wx=x*cp*ch, wz=x*cp*sh, yk=yAxis+x*sp-hullR(x)*cp;
+      const g=floorAt(wx,wz); if(g-yk>pen){ pen=g-yk; px=x; pwx=wx; pwz=wz; pg=g; } }
+    const was=sim.grounded;
+    // touching: the lowest point of the keel is on the sand. While the hull is not rising it is kept there,
+    // so as the pitch levels out the hull pivots on that point (a bow that struck first lets the stern come down)
+    if(pen>0 || (was && pen>-0.6 && sim.vy<=0.05)){
+      const hit=-sim.vy*UNDER_K + Math.max(0,-sp)*sim.speed*0.5144;         // vertical speed plus the plunge of a nose-down hull
+      sim.depth += pen/UNDER_K; sim.vy=Math.max(0,sim.vy); sim.grounded=true;
+      if(!was && hit>0.5) dustBurst(pwx,pg,pwz, Math.min(500,60+hit*45), Math.min(6,1+hit*0.5));
+      // the far end landing after the pivot raises a second cloud
+      if(sim.landX!==undefined && Math.sign(px)!==Math.sign(sim.landX) && Math.abs(px)>15){ dustBurst(pwx,pg,pwz, 160, 2.5); sim.landX=px; }
+      if(!was) sim.landX=px;
+    } else sim.grounded=false;
+    if(was!==sim.grounded) note();
+    // the screw turning against the bottom stirs up the sand behind it
+    if(sim.grounded && sim.screw>0.05 && Math.random()<dt*20*sim.screw){
+      const x=XS-1; dustBurst(x*cp*ch, pg, x*cp*sh, 6, 1+sim.screw*3, -ch, -sh); }
+  }
+  // apply
+  const atSurf = sim.depth>-0.4, waves = atSurf && env!=='studio';
+  const bob = waves ? Math.sin(t*0.7)*0.18 : Math.sin(t*0.4)*0.12;
+  nautilus.position.y = boatY(sim.depth) + bob;
+  nautilus.rotation.y = sim.heading;
+  nautilus.rotation.z = sim.pitch + (waves?Math.sin(t*0.5)*0.012:0);
+  nautilus.rotation.x = -sim.rud*flow*(0.25+v)*0.3 + (waves?Math.sin(t*0.63)*0.02:0); // bank into turns
+  ballastWater.forEach(w=>w.scale.y=Math.max(0.02,bal));
+  // the camera rises and sinks with the boat, so the view does not tilt away from it
+  if(!focus){ const dy=((nautilus.position.y+1.5)-controls.target.y)*Math.min(1,dt*2); controls.target.y+=dy; camera.position.y+=dy; }
+  keepCamUnder();
+  // HUD
+  const h=((-sim.heading*180/Math.PI)%360+360)%360;
+  $('hHdg').textContent=String(Math.round(h)).padStart(3,'0')+'°';
+  { const d=Math.max(0,-sim.depth); $('hDep').textContent=Math.round(d*4+Math.pow(d/14,3)*1944)+' m'; } // compressed scale, up to ~2 000 m on the deepest floor
+  $('hPit').textContent=Math.round(sim.pitch*180/Math.PI)+'°';
+  $('hSpd').textContent=Math.round(sim.speed)+' nós';
+  fwd.set(Math.cos(sim.heading),Math.sin(sim.pitch),-Math.sin(sim.heading)).normalize();
+  return v;
+}
+const bX=document.getElementById('bXray');
+const shellMeshes=[];
+nautilus.traverse(o=>{ if(o.isMesh && (o.name==='hull'||o.userData.shell)) shellMeshes.push(o); });
+bX.onclick=()=>{ xray=!xray; bX.classList.toggle('on',xray); rooms.visible=xray;
+  for(const m of shellMeshes){ m.material.transparent=xray; m.material.opacity=xray?0.16:1; m.material.depthWrite=!xray; m.material.needsUpdate=true; }
+  labelObjs.forEach(o=>o.visible=labelsOn && !xray);
+  rooms.children.forEach(o=>{ if(o.userData.room) o.visible=labelsOn && xray; });
+};
+const xrList=document.getElementById('xrList'), bExp=document.getElementById('bExplode');
+{ const xrToggle=bX.onclick;
+  bX.onclick=()=>{ xrToggle(); xrList.style.display=xray?'block':'none'; info.style.display=xray?'none':'';
+    document.getElementById('toggleInfo').textContent=xray?'Raio-X':'Ficha técnica'; syncPanelButtons();
+    if(!xray){ explodeTarget=0; explodeK=0; applyExplode(0); isolate(null); focus=null; bExp.classList.remove('on'); setActive(null); } }; }
+bExp.onclick=()=>{ explodeTarget=explodeTarget?0:1; bExp.classList.toggle('on',!!explodeTarget); };
+// X-ray list: deck, then compartments from bow to stern with their parts, then the bottom of the hull
+const xrItemsEl=document.getElementById('xrItems');
+let activeBtn=null;
+function setActive(b){ if(activeBtn) activeBtn.classList.remove('on'); activeBtn=b; if(b){ b.classList.add('on'); b.scrollIntoView({block:'nearest'}); } }
+{
+  const addSec=t=>{ const h=document.createElement('div'); h.className='sec'; h.textContent=t; xrItemsEl.appendChild(h); };
+  const addBtn=(it,cls)=>{ const b=document.createElement('button'); b.className='xi '+cls; b.textContent=it.name;
+    b.onclick=()=>it.el.click(); it.el.addEventListener('click',()=>setActive(b)); xrItemsEl.appendChild(b); };
+  const parts=xrItems.filter(i=>i.kind==='part');
+  addSec('NA PLATAFORMA'); parts.filter(p=>p.group==='deck').forEach(p=>addBtn(p,'part'));
+  addSec('DA PROA À POPA');
+  xrItems.filter(i=>i.kind==='room').sort((a,b)=>b.x-a.x).forEach(r=>{ addBtn(r,'room');
+    parts.filter(p=>!p.group && roomRank(p.x)===roomRank(r.x)).sort((a,b)=>b.x-a.x).forEach(p=>addBtn(p,'part')); });
+  addSec('FUNDO DO CASCO'); xrItems.filter(i=>i.kind==='bottom').forEach(i=>addBtn(i,'room'));
+}
+document.getElementById('bOverview').onclick=()=>{ overview(); setActive(null); };
+const bL=document.getElementById('bLbl');
+labelObjs.forEach(o=>o.visible=false);
+bL.onclick=()=>{ labelsOn=!labelsOn; bL.classList.toggle('on',labelsOn); labelObjs.forEach(o=>o.visible=labelsOn && !xray); rooms.children.forEach(o=>{ if(o.userData.room) o.visible=labelsOn && xray; }); };
+let flagUp=1, flagTarget=1;
+const bFlag=document.getElementById('bFlag');
+const setFlag=v=>{ flagTarget=v; bFlag.classList.toggle('on',!!v); bFlag.textContent=v?'Arriar bandeira':'Içar bandeira'; };
+setFlag(1);
+bFlag.onclick=()=>setFlag(flagTarget?0:1);
+let battle=0, battleTarget=0;
+const bBattle=document.getElementById('bBattle');
+bBattle.onclick=()=>{ battleTarget=battleTarget?0:1; bBattle.classList.toggle('on',!!battleTarget);
+  bBattle.textContent=battleTarget?'Desfazer preparação':'Preparar para o ataque';
+  if(battleTarget) setFlag(1); // Nemo hoists his flag at the fore part of the platform
+  if(battleTarget) show('Preparar para o ataque','Parte II, cap. XXI, “Uma hecatombe”. Antes de investir contra o navio de guerra, a tripulação baixa a balaustrada de ferro e recolhe as cabines do farol e do piloto até ficarem rentes ao convés: o charuto de aço não oferece mais nenhuma saliência. Só a bandeira de Nemo fica na proa da plataforma.'); };
+const bR=document.getElementById('bRot');
+bR.onclick=()=>{ controls.autoRotate=!controls.autoRotate; controls.autoRotateSpeed=0.6; bR.classList.toggle('on',controls.autoRotate); };
+const info=document.getElementById('info');
+document.getElementById('toggleInfo').onclick=()=>{ const id=xray?'xrList':'info'; setPanel(id, $(id).classList.contains('hide')); };
+syncPanelButtons();
+if(innerWidth<760) info.classList.add('hide');
+
+/* ---------------- animate ---------------- */
+const clock=new THREE.Clock();
+/* ---------------- "Estilo: gravura": the scene drawn like an 1871 wood engraving ----------------
+   The scene is rendered into an off-screen image; a full-screen pass then turns it into ink on paper:
+   parallel lines whose width follows the darkness (as a wood engraver cuts them), a second set of
+   crossing lines in the dark areas, outlines where depth or brightness jumps, and a warm paper tone. */
+const engr = { on:false };
+{
+  const size = renderer.getDrawingBufferSize(new THREE.Vector2());
+  const rt = new THREE.WebGLRenderTarget(size.x, size.y, { type:THREE.HalfFloatType, samples:4 });
+  rt.depthTexture = new THREE.DepthTexture(size.x, size.y);
+  const mat = new THREE.ShaderMaterial({
+    toneMapped:false, depthTest:false, depthWrite:false,
+    uniforms:{ tCol:{value:rt.texture}, tDep:{value:rt.depthTexture}, uRes:{value:size.clone()}, uPR:{value:renderer.getPixelRatio()},
+      uNear:{value:camera.near}, uFar:{value:camera.far}, uExp:{value:1}, uBgPaper:{value:0} },
+    vertexShader:`varying vec2 vUv; void main(){ vUv=uv; gl_Position=vec4(position.xy,0.,1.); }`,
+    fragmentShader:`
+      uniform sampler2D tCol, tDep; uniform vec2 uRes; uniform float uPR, uNear, uFar, uExp, uBgPaper; varying vec2 vUv;
+      // the same ACES curve and sRGB output the normal view uses, so tones match
+      vec3 rrt(vec3 v){ vec3 a=v*(v+0.0245786)-0.000090537; vec3 b=v*(0.983729*v+0.4329510)+0.238081; return a/b; }
+      vec3 aces(vec3 c){ const mat3 I=mat3(vec3(0.59719,0.07600,0.02840),vec3(0.35458,0.90834,0.13383),vec3(0.04823,0.01566,0.83777));
+        const mat3 O=mat3(vec3(1.60475,-0.10208,-0.00327),vec3(-0.53108,1.10813,-0.07276),vec3(-0.07367,-0.00605,1.07602));
+        c*=uExp/0.6; return clamp(O*rrt(I*c),0.,1.); }
+      float srgb(float x){ return x<0.0031308 ? x*12.92 : 1.055*pow(x,1./2.4)-0.055; }
+      float lum(vec2 uv){ vec3 c=aces(texture2D(tCol,uv).rgb); return srgb(dot(c,vec3(0.2126,0.7152,0.0722))); }
+      float vz(vec2 uv){ float d=texture2D(tDep,uv).x; return uNear*uFar/((uFar-uNear)*d-uFar); }   // view-space z (negative)
+      float hash(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+      float vnoise(vec2 p){ vec2 i=floor(p), f=fract(p); f=f*f*(3.-2.*f);
+        return mix(mix(hash(i),hash(i+vec2(1,0)),f.x),mix(hash(i+vec2(0,1)),hash(i+vec2(1,1)),f.x),f.y); }
+      // one set of parallel lines: ink where the distance to the nearest line is below half its width
+      float lines(vec2 p, float ang, float gap, float dark){
+        vec2 d=vec2(cos(ang),sin(ang)); float t=dot(p,vec2(-d.y,d.x));
+        t += (vnoise(p*0.035)-0.5)*1.6;                                   // a slightly unsteady hand
+        float dist=abs(fract(t/gap)-0.5)*gap;
+        float hw=0.5*gap*clamp(dark,0.,1.);
+        return 1.-smoothstep(hw-0.55,hw+0.55,dist);
+      }
+      void main(){
+        vec2 px=1./uRes, p=gl_FragCoord.xy/uPR;                            // p in CSS pixels, so the line spacing is the same on any screen
+        float L=lum(vUv);
+        // local contrast, as the engraver exaggerates it: waves, plates and folds stand out from their surroundings
+        vec2 r=px*uPR*5.;
+        float La=0.25*(lum(vUv+vec2(r.x,0.))+lum(vUv-vec2(r.x,0.))+lum(vUv+vec2(0.,r.y))+lum(vUv-vec2(0.,r.y)));
+        float Lc=clamp(L+1.8*(L-La),0.,1.);
+        // tone: the scenes are mostly mid-dark; lift them so there is white between the lines, as on the page
+        float dark=1.-pow(Lc,0.55);
+        dark=smoothstep(0.04,0.98,dark);
+        // in the studio the empty background becomes bare paper with a light ruling, as in a plate of the book
+        if(uBgPaper>0.5 && texture2D(tDep,vUv).x>0.99999) dark=0.10;
+        float ink=lines(p, 0.32, 4.2, dark*1.05);                          // main lines, a little off horizontal
+        ink=max(ink, lines(p, -0.95, 4.6, (dark-0.45)*1.6));              // crossing lines in the shadows
+        ink=max(ink, lines(p, 1.25, 5.0, (dark-0.75)*2.2));               // a third set in the deepest blacks
+        // outlines: jumps in depth (silhouettes) and in brightness (edges of plates, rails, windows)
+        float z=vz(vUv); float e=0.;
+        for(int i=0;i<4;i++){ vec2 o = i==0?vec2(px.x,0.):i==1?vec2(-px.x,0.):i==2?vec2(0.,px.y):vec2(0.,-px.y);
+          o*=uPR; float z2=vz(vUv+o); e=max(e, smoothstep(0.012,0.04,abs(z2-z)/max(-z,0.1)));
+          e=max(e, smoothstep(0.10,0.22,abs(lum(vUv+o)-L))); }
+        ink=max(ink,e*0.9);
+        // paper: warm, uneven; ink: brown-black, not quite solid
+        float grain=vnoise(p*0.7)*0.5+vnoise(p*0.11)*0.5;
+        vec3 paper=vec3(0.93,0.895,0.80)*(0.95+0.07*grain);
+        vec3 inkc=vec3(0.13,0.105,0.085);
+        vec3 col=mix(paper, inkc, ink*(0.88+0.12*hash(floor(p*0.5))));
+        vec2 q=vUv-0.5; col*=1.-0.35*dot(q,q);                              // the edges of the page a little darker
+        gl_FragColor=vec4(col,1.);
+      }`
+  });
+  const quad=new THREE.Mesh(new THREE.PlaneGeometry(2,2),mat); quad.frustumCulled=false;
+  const postScene=new THREE.Scene(); postScene.add(quad); const postCam=new THREE.OrthographicCamera(-1,1,1,-1,0,1);
+  engr.resize=()=>{ renderer.getDrawingBufferSize(size); rt.setSize(size.x,size.y); mat.uniforms.uRes.value.copy(size); mat.uniforms.uPR.value=renderer.getPixelRatio(); };
+  engr.render=()=>{
+    mat.uniforms.uExp.value=renderer.toneMappingExposure; mat.uniforms.uBgPaper.value = env==='studio' ? 1 : 0; mat.uniforms.uNear.value=camera.near; mat.uniforms.uFar.value=camera.far;
+    renderer.setRenderTarget(rt); renderer.render(scene,camera); renderer.setRenderTarget(null); renderer.render(postScene,postCam);
+  };
+  const bE=document.getElementById('bEngrave');
+  engr.set=on=>{ engr.on=on; bE.classList.toggle('on',on); document.body.classList.toggle('engraved',on);
+    try{ localStorage.setItem('nautilus-engrave',on?'1':'0'); }catch(e){} };
+  bE.onclick=()=>engr.set(!engr.on);
+  try{ if(localStorage.getItem('nautilus-engrave')==='1') engr.set(true); }catch(e){}
+}
+function tick(){
+  const dt=Math.min(clock.getDelta(),0.05), t=clock.elapsedTime;
+  waterUniforms.uTime.value=t; beamMat.uniforms.uTime.value=t;
+  autoPilot(dt); const vrel = stepSim(dt,t); autoEnv(); updateSound(dt);
+  // the boat stays at the origin and the sea moves past it: waves, sea floor, light shafts, particles
+  const k=sim.speed*0.5144*dt;                         // knots -> m/s, 1 scene unit = 1 m
+  travel.x+=fwd.x*k; travel.z+=fwd.z*k; waterUniforms.uOff.value.set(travel.x,travel.z); moveSeabed();
+  // foam only while the hull is at the surface and making way
+  { const fw=Math.min(1,sim.speed/8)*Math.max(0,Math.min(1,(sim.depth+1.2)/1.2));
+    updateWake(t, travel.x, travel.z, sim.heading, WATER_AFT, fw);
+    bowWave.rotation.y = sim.heading; bowWave.material.uniforms.uStr.value = fw; }
+  prop.rotation.x += dt*(0.3+sim.screw*14);
+  // flag waving
+  const pa=flagGeo.attributes.position;
+  for(let i=0;i<pa.count;i++){ const bx=flagBase[i*3], by=flagBase[i*3+1]; const k=-bx/2.2; pa.setZ(i, Math.sin(bx*2.6 - t*5 + by*0.8)*0.18*k*(0.25+0.75*flagUp)); }
+  pa.needsUpdate=true; flagGeo.computeVertexNormals();
+  flagUp += (flagTarget-flagUp)*Math.min(1,dt*1.2);
+  flag.position.y = flag.userData.bottom + (flag.userData.top-flag.userData.bottom)*flagUp;
+  flag.visible = env!=='under' && flagUp>0.03;
+  // attack preparation: balustrade lowered, cages pushed flush with the deck
+  battle += (battleTarget-battle)*Math.min(1,dt*1.5);
+  { const dy=-1.32*battle;
+    pilot.position.y=pilot.userData.y0+dy; lanternCage.position.y=lanternCage.userData.y0+dy;
+    lampSpot.position.y=lampBaseY+dy; lampGlow.position.y=lampSpot.position.y; beam.position.y=lampSpot.position.y;
+    beam.visible=lampOn && battle<0.5;
+    railing.position.y=-1.05*battle; railing.visible=railShown && battle<0.97; }
+  // shutters
+  shutterOpen += (shutterTarget-shutterOpen)*Math.min(1,dt*2.2);
+  shutters.forEach(s=>s.position.x = s.userData.side*(0.8 + shutterOpen*1.75));
+  M.salonGlass.emissiveIntensity = shutterOpen*2.2;
+  salonLights.forEach(l=>l.intensity=shutterOpen*30);
+  // electrified stair-rail: occasional discharge
+  { const z = (Math.sin(t*1.7)+Math.sin(t*4.3))>1.6 ? 1 : 0; const f=z*(0.6+Math.random()*0.8);
+    elecMat.emissiveIntensity=f*2.5; stairRail.userData.spark.intensity=f*4; }
+  // lamp flicker
+  if(lampOn){ lampGlow.intensity = 6+Math.sin(t*13)*0.3; }
+  // underwater life
+  if(env==='under'){
+    snow.position.y=nautilus.position.y;
+    const sp=snow.geometry.attributes.position;
+    for(let i=0;i<sp.count;i++){ let x=sp.getX(i)-fwd.x*k, y=sp.getY(i)-dt*0.25-fwd.y*k, z=sp.getZ(i)-fwd.z*k;
+      if(y<-20) y+=40; if(y>20) y-=40; if(x<-80) x+=160; if(x>80) x-=160; if(z<-80) z+=160; if(z>80) z-=160;
+      sp.setXYZ(i,x,y,z); }
+    sp.needsUpdate=true; snow.material.uniforms.uScale.value = innerHeight/(2*Math.tan(camera.fov*Math.PI/360));
+    updateBubbles(dt); updateDust(dt); updateSeaLife(dt,t);
+    rays.children.forEach(r=>{ r.material.opacity=0.04+0.02*Math.sin(t*0.6+r.userData.ph); });
+    seabed.children.forEach(o=>{ if(o.userData.ph!==undefined) o.rotation.z=Math.sin(t*0.8+o.userData.ph)*0.08; });
+  }
+  // exploded view and close-ups (X-ray)
+  if(Math.abs(explodeTarget-explodeK)>1e-4){ explodeK += (explodeTarget-explodeK)*Math.min(1,dt*2.5);
+    if(Math.abs(explodeTarget-explodeK)<1e-3) explodeK=explodeTarget; applyExplode(explodeK); }
+  if(focus){ const p=focus.obj.getWorldPosition(new THREE.Vector3()), a=Math.min(1,dt*3);
+    controls.target.lerp(p,a);
+    if(focus.t<1.5){ const dir=camera.position.clone().sub(controls.target).normalize(); camera.position.lerp(p.clone().addScaledVector(dir,focus.dist),a); focus.t+=dt; }
+    else if(focus.release) focus=null; }
+  controls.update();
+  if(engr.on) engr.render(); else renderer.render(scene,camera);
+  labelRenderer.render(scene,camera);
+  requestAnimationFrame(tick);
+}
+tick();
+/* ---------------- hull shape toggle (reloads with ?forma=) ---------------- */
+{
+  const txt = ENG
+    ? 'Casco <b>pelas ilustrações</b>: cilindro de 46 m e cones de 12 m, como nas gravuras de Neuville e Riou. Todos os compartimentos do livro cabem, mas o volume sobe para ≈ 2 700 m³ e a superfície para ≈ 1 470 m², longe dos números do texto.'
+    : 'Casco <b>pelo texto de Verne</b>: um cilindro de ≈ 9,8 m entre dois cones de ≈ 30 m. É a única forma que dá, ao mesmo tempo, 70 m × 8 m, 1 011,45 m² e 1 500,2 m³. O preço: perto da proa o casco fica estreito demais para os camarotes que Verne descreve (compare com o timoneiro).';
+  document.getElementById('shapeTxt').innerHTML = txt + ' Nas duas formas, o esporão, a hélice e o leme cabem dentro dos 70 m.';
+  const go = eng => { try{ const u=new URL(location.href); if(eng) u.searchParams.set('forma','gravuras'); else u.searchParams.delete('forma'); location.href=u.toString(); }catch(e){} };
+  const bS=document.getElementById('bShape'), bV=document.getElementById('bShapeV'), bG=document.getElementById('bShapeG');
+  bS.textContent = ENG ? 'Casco: pelas ilustrações' : 'Casco: pelo texto';
+  bS.title = ENG ? 'Trocar para o casco com as medidas do texto de Verne' : 'Trocar para o casco como nas ilustrações de 1871';
+  bS.onclick = ()=>go(!ENG);
+  bV.classList.toggle('on',!ENG); bG.classList.toggle('on',ENG);
+  bV.onclick = ()=>{ if(ENG) go(false); }; bG.onclick = ()=>{ if(!ENG) go(true); };
+}
+const ld=document.getElementById('load'); setTimeout(()=>{ld.style.opacity=0; setTimeout(()=>ld.remove(),900);},400);
+
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight); labelRenderer.setSize(innerWidth,innerHeight); engr.resize(); });
+</script>
+</body>
+</html>

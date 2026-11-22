@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vinte Mil Léguas Submarinas — livro, vídeo e simulador</title>
+<meta name="description" content="Vinte Mil Léguas Submarinas, de Júlio Verne, em português, com as 111 gravuras de 1871: leia on-line, baixe em PDF ou EPUB, assista à versão narrada e explore o Nautilus em 3D.">
+<meta property="og:title" content="Vinte Mil Léguas Submarinas — livro, vídeo e simulador">
+<meta property="og:description" content="Júlio Verne em português, com as 111 gravuras de Neuville e Riou (1871). Leia, baixe, assista e explore o Nautilus em 3D.">
+<meta property="og:image" content="img/capa.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abismo:#05080b; --mar:#0b1a24; --mar2:#102733; --latao:#c9a96e; --latao2:#e2c992;
+  --papel:#efe6d2; --tinta:#2a2118; --sepia:#5a4320; --texto:#d9cfbb; --suave:#9fa8a6;
+}
+*{box-sizing:border-box}
+html{background:var(--abismo)}
+body{margin:0;font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.55;color:var(--texto);
+  background:radial-gradient(ellipse at 50% -10%, #17384a 0%, var(--mar) 38%, var(--abismo) 100%) fixed}
+a{color:var(--latao2)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:'Cinzel',Georgia,serif;font-weight:500;letter-spacing:.06em;color:var(--latao2);margin:0}
+
+/* topo */
+.hero{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:48px;align-items:center;padding:64px 0 40px}
+.hero img{width:100%;height:auto;border-radius:3px;box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1px rgba(201,169,110,.25)}
+.autor{font-family:'Cinzel',serif;letter-spacing:.3em;font-size:.85em;color:var(--latao)}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.12;margin:.25em 0 .4em}
+.hero p.lead{font-size:1.12em;margin:0 0 1.4em;max-width:36em}
+.acoes{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:.5em;padding:.6em 1.15em;border-radius:3px;text-decoration:none;
+  font-family:'Cinzel',serif;font-size:.78em;letter-spacing:.12em;border:1px solid var(--latao);color:var(--latao2);transition:background .2s,color .2s}
+.btn:hover{background:var(--latao);color:var(--abismo)}
+.btn.cheio{background:var(--latao);color:var(--abismo)}
+.btn.cheio:hover{background:var(--latao2)}
+
+/* seções */
+section{padding:44px 0;border-top:1px solid rgba(201,169,110,.18)}
+section > h2{font-size:1.5rem;margin-bottom:.3em}
+section > p.sub{color:var(--suave);margin:0 0 1.4em;font-style:italic}
+
+/* vídeo */
+.video{position:relative;border-radius:4px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.55);background:#000}
+.video video{display:block;width:100%;height:auto;aspect-ratio:16/9}
+.nota-video{font-size:.9em;color:var(--suave);margin-top:.8em}
+
+/* cartões */
+.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.cartao{background:linear-gradient(180deg,rgba(16,39,51,.9),rgba(8,18,25,.95));border:1px solid rgba(201,169,110,.22);
+  border-radius:4px;padding:24px;display:flex;flex-direction:column}
+.cartao h3{font-size:1.1rem;margin-bottom:.5em}
+.cartao p{margin:0 0 1.2em;flex:1}
+.cartao .acoes{margin-top:auto}
+
+/* downloads */
+.downloads{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.dl{display:flex;flex-direction:column;gap:.2em;padding:18px 20px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
+  text-decoration:none;color:var(--texto);background:rgba(5,8,11,.35);transition:border-color .2s,background .2s}
+.dl:hover{border-color:var(--latao);background:rgba(201,169,110,.08)}
+.dl b{font-family:'Cinzel',serif;font-weight:500;letter-spacing:.1em;color:var(--latao2)}
+.dl span{font-size:.9em;color:var(--suave)}
+
+/* créditos */
+.creditos{font-size:.95em}
+.creditos dl{display:grid;grid-template-columns:max-content 1fr;gap:.45em 1.4em;margin:0}
+.creditos dt{font-family:'Cinzel',serif;font-size:.8em;letter-spacing:.12em;color:var(--latao);padding-top:.2em}
+.creditos dd{margin:0}
+footer{padding:30px 0 50px;color:var(--suave);font-size:.85em;text-align:center}
+
+@media (max-width:760px){
+  body{font-size:17px}
+  .hero{grid-template-columns:1fr;gap:28px;padding:36px 0 24px;text-align:center}
+  .hero img{max-width:240px;margin:0 auto;display:block}
+  .hero p.lead{margin-left:auto;margin-right:auto}
+  .acoes{justify-content:center}
+  .creditos dl{grid-template-columns:1fr}
+  .creditos dt{padding-top:.6em}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <img src="img/capa.jpg" alt="Capa: Vinte Mil Léguas Submarinas, de Júlio Verne, com a gravura de abertura da edição de 1871" width="1600" height="2400">
+  <div>
+    <div class="autor">JÚLIO VERNE</div>
+    <h1>Vinte Mil Léguas Submarinas</h1>
+    <p class="lead">O romance completo em português, traduzido do francês da edição Hetzel de 1871, com as 111 gravuras de Alphonse de Neuville e Édouard Riou. Leia on-line, baixe para o seu leitor, assista à versão narrada ou entre no <em>Nautilus</em> em 3D.</p>
+    <div class="acoes">
+      <a class="btn cheio" href="ler/">Ler on-line</a>
+      <a class="btn" href="#baixar">Baixar o livro</a>
+      <a class="btn" href="#video">Versão narrada</a>
+      <a class="btn" href="simulador/">Nautilus 3D</a>
+    </div>
+  </div>
+</header>
+
+<section id="video">
+  <h2>Versão narrada</h2>
+  <p class="sub">Uma viagem de nove minutos pelo livro, narrada com a voz de Marcelo Rovai, sobre as gravuras de 1871.</p>
+  <div class="video">
+    <video controls preload="metadata" poster="video/poster.jpg" playsinline>
+      <source src="video/vinte-mil-leguas-narrado-720p.mp4" type="video/mp4">
+      Seu navegador não reproduz vídeo. <a href="video/vinte-mil-leguas-narrado-720p.mp4">Baixe o arquivo MP4</a>.
+    </video>
+  </div>
+  <p class="nota-video">Versão em 720p. O original em 1080p pode ser baixado na <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas/releases/latest">página de releases</a>.</p>
+</section>
+
+<section id="explorar">
+  <h2>Explorar</h2>
+  <p class="sub">Duas maneiras de entrar na história.</p>
+  <div class="cartoes">
+    <div class="cartao">
+      <h3>Ler on-line</h3>
+      <p>Os 47 capítulos, das duas partes, com todas as gravuras no lugar em que aparecem na edição original e um sumário clicável. Funciona no celular.</p>
+      <div class="acoes"><a class="btn cheio" href="ler/">Abrir o livro</a></div>
+    </div>
+    <div class="cartao">
+      <h3>O <em>Nautilus</em> em 3D</h3>
+      <p>Um modelo do submarino do capitão Nemo construído a partir das medidas que Verne dá no texto. Gire, aproxime, abra os compartimentos e veja as gravuras de cada um. Funciona melhor em computador.</p>
+      <div class="acoes"><a class="btn cheio" href="simulador/">Abrir o simulador</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="baixar">
+  <h2>Baixar o livro</h2>
+  <p class="sub">Livre para ler e compartilhar.</p>
+  <div class="downloads">
+    <a class="dl" href="downloads/Vinte-Mil-Leguas-Submarinas.epub" download><b>EPUB</b><span>Para Kindle, Kobo, Apple Livros e outros leitores · 19 MB</span></a>
+    <a class="dl" href="downloads/Vinte-Mil-Leguas-Submarinas.pdf" download><b>PDF</b><span>Formato A5, pronto para ler ou imprimir · 730 páginas · 21 MB</span></a>
+    <a class="dl" href="downloads/Vinte-Mil-Leguas-Submarinas.md" download><b>Markdown</b><span>Só o texto, para quem quer estudar ou reaproveitar · 0,9 MB</span></a>
+  </div>
+</section>
+
+<section class="creditos" id="creditos">
+  <h2>Créditos</h2>
+  <p class="sub">Como este trabalho foi feito.</p>
+  <dl>
+    <dt>Texto original</dt><dd>Júlio Verne, <em>Vingt mille lieues sous les mers</em>, edição J. Hetzel, 1871, conforme publicada pelo <a href="https://www.gutenberg.org/ebooks/54873">Projeto Gutenberg (nº 54873)</a>.</dd>
+    <dt>Gravuras</dt><dd>111 desenhos de Alphonse de Neuville e Édouard Riou, gravados por Hildibrand, da mesma edição (domínio público).</dd>
+    <dt>Tradução</dt><dd>Feita pelo Claude Opus 5.5, da Anthropic, sob a direção de Marcelo Rovai.</dd>
+    <dt>Simulador 3D</dt><dd>Gerado pelo Claude Opus 5.5 sob a direção de Marcelo Rovai, a partir do texto de Verne e das gravuras.</dd>
+    <dt>Versão narrada</dt><dd>Narrada com a voz de Marcelo Rovai.</dd>
+    <dt>Projeto</dt><dd>Marcelo Rovai · <a href="https://mjrovai.com">mjrovai.com</a> · <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas">código no GitHub</a></dd>
+  </dl>
+</section>
+
+</div>
+<footer>Vinte Mil Léguas Submarinas · Júlio Verne (1870) · edição em português, 2026</footer>
+</body>
+</html>
