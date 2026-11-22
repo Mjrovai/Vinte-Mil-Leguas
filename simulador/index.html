@@ -2362,6 +2362,7 @@ function tick(){
   const pa=flagGeo.attributes.position;
   for(let i=0;i<pa.count;i++){ const bx=flagBase[i*3], by=flagBase[i*3+1]; const k=-bx/2.2; pa.setZ(i, Math.sin(bx*2.6 - t*5 + by*0.8)*0.18*k*(0.25+0.75*flagUp)); }
   pa.needsUpdate=true; flagGeo.computeVertexNormals();
+  if(sim.depth<DIVE_AT && flagTarget) setFlag(0);   // once the deck goes under, the flag is lowered, and the button follows
   flagUp += (flagTarget-flagUp)*Math.min(1,dt*1.2);
   flag.position.y = flag.userData.bottom + (flag.userData.top-flag.userData.bottom)*flagUp;
   flag.visible = env!=='under' && flagUp>0.03;
