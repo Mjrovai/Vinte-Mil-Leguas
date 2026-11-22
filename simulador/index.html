@@ -259,7 +259,7 @@
   <details class="card"><summary>4 · Manobrar: os planos e o leme</summary><div class="cb">
     <div class="quote">“Se estão inclinados, o Nautilus, segundo a disposição dessa inclinação e sob o impulso de sua hélice, ou afunda segundo uma diagonal tão alongada quanto me convier, ou sobe segundo essa diagonal.”</div>
     <p>Os planos inclinados e o leme funcionam como asas: a água que passa por eles os empurra. A força cresce com o quadrado da velocidade: <b>F = ½ · ρ · v² · S · C</b>, em que S é a área e C cresce com o ângulo. Parado, v = 0 e não há força: o leme não vira o navio e os planos não o fazem mergulhar.</p>
-    <p>A mesma lei vale para a resistência da água contra o casco (seta cinza, na proa), que a hélice precisa vencer (seta lilás, na popa). Em velocidade constante, as duas são iguais: <b>T = D</b>. Ao acelerar, a tração é maior, e a diferença é <b>m · a</b>. A potência da máquina é <b>T · v</b>, e por isso cresce com o cubo da velocidade.</p>
+    <p>A mesma lei vale para a resistência da água contra o casco (seta cinza, sobre o convés), que a hélice precisa vencer (seta lilás, sob a quilha). Em velocidade constante, as duas são iguais: <b>T = D</b>. Ao acelerar, a tração é maior, e a diferença é <b>m · a</b>. A potência da máquina é <b>T · v</b>, e por isso cresce com o cubo da velocidade.</p>
     <p class="fsmall">Neste modelo, S ≈ 16 m² (os dois planos) e C ≈ 0,04 por grau, até no máximo 1. Na resistência, a área é a seção do casco, ≈ 50 m², com C ≈ 0,2. O simulador acelera bem mais depressa que um navio real, então a tração dá saltos ao mudar a máquina.</p>
     <button class="exp" data-exp="4">Experimente: descendo com os planos</button>
     <div class="hint">O <i>Nautilus</i> anda a 10 nós com os planos a 15°, descendo em diagonal. Passe a máquina para 20 nós: a força nos planos e a resistência ficam quatro vezes maiores. Antes de chegar ao fundo, ponha os planos para subir; no fundo, o atrito com a areia segura o navio.</div>
@@ -2039,9 +2039,9 @@ function fisArrow(color, parent, text){
   return {g,shaft,head,lbl,el,text};
 }
 // point the arrow from origin o along dir (+1 up, -1 down, or a unit vector), with length len (scene metres);
-// the label goes at the tip, or above the middle (mid) for the horizontal arrows
+// the label goes at the tip, or, for the horizontal arrows, beside the middle at height dy
 const _up=new THREE.Vector3(0,1,0), _d=new THREE.Vector3();
-function fisSet(a, o, dir, len, show, mid=false){
+function fisSet(a, o, dir, len, show, dy){
   const vis = show && len>0.15;
   a.g.visible=vis; a.lbl.visible=vis;
   if(!vis) return;
@@ -2049,7 +2049,7 @@ function fisSet(a, o, dir, len, show, mid=false){
   const hd=Math.min(2.2, len*0.35);
   a.g.position.copy(o); a.g.quaternion.setFromUnitVectors(_up,_d);
   a.shaft.scale.y=Math.max(0.01,len-hd); a.head.scale.set(1,hd,1); a.head.position.y=len-hd;
-  if(mid){ a.lbl.position.copy(o).addScaledVector(_d,len/2); a.lbl.position.y+=2.6; }
+  if(dy!==undefined){ a.lbl.position.copy(o).addScaledVector(_d,len/2); a.lbl.position.y+=dy; }
   else a.lbl.position.copy(o).addScaledVector(_d,len+1.2);
 }
 const fA={P:fisArrow(0xff8a6a,fisG), E:fisArrow(0x7fd0ff,fisG), R:fisArrow(0xffd166,fisG)};
@@ -2068,10 +2068,11 @@ function fisArrows(s){
   const tf=n=>(n||0)/(1000*FIS.G), k=FIS.KL*FIS.KF;
   const side = nautilus.worldToLocal(_cam.copy(camera.position)).z>=0 ? 1 : -1;
   _o.set(2,-0.2,side*(hullR(2)+1.8)); fisSet(fPl, _o, s.down?-1:1, Math.min(30, tf(s.Fp)*k), show);
-  // screw thrust pushing forward, behind the stern; water resistance pushing back, ahead of the bow
+  // screw thrust pushing forward from the screw, under the keel; water resistance pushing back from the bow,
+  // over the deck: both stay within the length of the hull, so nothing hides behind the side panels
   const lt=Math.min(30, tf(s.T)*k), ld=Math.min(30, tf(s.D)*k);
-  _o.set(XS-4-lt,0,0); fisSet(fT, _o, _px, lt, show, true);
-  _o.set(L+1.5+ld,0,0); fisSet(fD, _o, _nx, ld, show, true);
+  _o.set(XS+1,-R-2.6,0); fisSet(fT, _o, _px, lt, show, -2.2);
+  _o.set(L-1,R+4,0); fisSet(fD, _o, _nx, ld, show, 2.2);
 }
 function fisUpdate(dt){
   if(!fisOn) return;
@@ -2122,8 +2123,9 @@ bFisArrows.onclick=()=>{ fisArrowsOn=!fisArrowsOn; bFisArrows.classList.toggle('
   bFisArrows.textContent='Setas de força: '+(fisArrowsOn?'ligadas':'desligadas'); };
 // broadside view, so the vertical forces read clearly
 function fisCam(){
-  // aim a little toward the stern, so the whole boat, the thrust behind it included, sits clear of the panel on the left
-  focus=null; const c=nautilus.position, h=sim.heading, sx=-Math.cos(h)*21, sz=Math.sin(h)*21;
+  // aim a little toward the stern, so the whole boat sits in the space left between the side panels
+  const sh = $('pilotPanel').classList.contains('hide') ? 17 : 3;
+  focus=null; const c=nautilus.position, h=sim.heading, sx=-Math.cos(h)*sh, sz=Math.sin(h)*sh;
   controls.target.set(c.x+sx, c.y, c.z+sz);
   camera.position.set(c.x+sx+Math.sin(h)*112, c.y+(env==='under'?3:10), c.z+sz+Math.cos(h)*112); keepCamUnder();
 }
