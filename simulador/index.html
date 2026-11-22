@@ -123,7 +123,7 @@
 <style>#voltar-site{position:fixed;z-index:50;font:500 13px/1 "EB Garamond",Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px}</style>
 </head>
 <body>
-<a id="voltar-site" href="../" style="top:16px;right:16px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">← Início</a>
+<a id="voltar-site" href="../" style="top:16px;right:16px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">← Início</a><a id="voltar-galeria" href="https://mjrovai.github.io/simuladores-interativos/?lang=pt" style="position:fixed;z-index:50;top:52px;right:16px;font:500 13px/1 'EB Garamond',Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">Simuladores ↗</a>
 <div id="load">NAUTILUS · MOBILIS IN MOBILI</div>
 <canvas id="c"></canvas>
 <div id="labels"></div>
@@ -343,6 +343,8 @@ if(LANG==='en'){
   document.querySelectorAll('[title]').forEach(e=>{ e.title=tr(e.title); });
   const vs=document.getElementById('voltar-site');   // the site's "back" link, added when the site is built
   if(vs){ vs.href='../en/'; vs.textContent='← Home'; }
+  const vg=document.getElementById('voltar-galeria');   // link to the simulator gallery, added at build
+  if(vg){ vg.href=vg.href.replace('lang=pt','lang=en'); vg.textContent='Simulators ↗'; }
   document.querySelectorAll('a[href$="Fisica-do-Nautilus-folha.pdf"]').forEach(a=>{ a.href=a.href.replace('Fisica-do-Nautilus-folha.pdf','Physics-of-the-Nautilus-handout.pdf'); });
 }
 { const b=document.getElementById('bLang'); b.textContent=Lg('English','Português');
