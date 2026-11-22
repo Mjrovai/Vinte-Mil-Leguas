@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Twenty Thousand Leagues Under the Sea — 3D Nautilus, physics, and book</title>
+<meta name="description" content="Jules Verne's Twenty Thousand Leagues Under the Sea: explore Captain Nemo's Nautilus in 3D, with a physics panel for the classroom, and the Portuguese edition illustrated with the 111 engravings of 1871.">
+<meta property="og:title" content="Twenty Thousand Leagues Under the Sea — 3D Nautilus and book">
+<meta property="og:description" content="Explore Captain Nemo's Nautilus in 3D, built from the figures in Verne's text, with a physics panel for the classroom.">
+<meta property="og:image" content="https://mjrovai.github.io/Vinte-Mil-Leguas/img/capa.jpg">
+<link rel="alternate" hreflang="pt-BR" href="https://mjrovai.github.io/Vinte-Mil-Leguas/">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --abismo:#05080b; --mar:#0b1a24; --mar2:#102733; --latao:#c9a96e; --latao2:#e2c992;
+  --papel:#efe6d2; --tinta:#2a2118; --sepia:#5a4320; --texto:#d9cfbb; --suave:#9fa8a6;
+}
+*{box-sizing:border-box}
+html{background:var(--abismo)}
+body{margin:0;font-family:'EB Garamond',Georgia,serif;font-size:19px;line-height:1.55;color:var(--texto);
+  background:radial-gradient(ellipse at 50% -10%, #17384a 0%, var(--mar) 38%, var(--abismo) 100%) fixed}
+a{color:var(--latao2)}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}
+h1,h2,h3{font-family:'Cinzel',Georgia,serif;font-weight:500;letter-spacing:.06em;color:var(--latao2);margin:0}
+
+/* topo */
+.hero{display:grid;grid-template-columns:minmax(220px,340px) 1fr;gap:48px;align-items:center;padding:64px 0 40px}
+.hero img{width:100%;height:auto;border-radius:3px;box-shadow:0 18px 50px rgba(0,0,0,.6),0 0 0 1px rgba(201,169,110,.25)}
+.autor{font-family:'Cinzel',serif;letter-spacing:.3em;font-size:.85em;color:var(--latao)}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);line-height:1.12;margin:.25em 0 .4em}
+.hero p.lead{font-size:1.12em;margin:0 0 1.4em;max-width:36em}
+.acoes{display:flex;flex-wrap:wrap;gap:12px}
+.btn{display:inline-flex;align-items:center;gap:.5em;padding:.6em 1.15em;border-radius:3px;text-decoration:none;
+  font-family:'Cinzel',serif;font-size:.78em;letter-spacing:.12em;border:1px solid var(--latao);color:var(--latao2);transition:background .2s,color .2s}
+.btn:hover{background:var(--latao);color:var(--abismo)}
+.btn.cheio{background:var(--latao);color:var(--abismo)}
+.btn.cheio:hover{background:var(--latao2)}
+
+/* seções */
+section{padding:44px 0;border-top:1px solid rgba(201,169,110,.18)}
+section > h2{font-size:1.5rem;margin-bottom:.3em}
+section > p.sub{color:var(--suave);margin:0 0 1.4em;font-style:italic}
+
+/* vídeo */
+.video{position:relative;border-radius:4px;overflow:hidden;box-shadow:0 18px 50px rgba(0,0,0,.55);background:#000}
+.video video{display:block;width:100%;height:auto;aspect-ratio:16/9}
+.nota-video{font-size:.9em;color:var(--suave);margin-top:.8em}
+
+/* cartões */
+.cartoes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:22px}
+.cartao{background:linear-gradient(180deg,rgba(16,39,51,.9),rgba(8,18,25,.95));border:1px solid rgba(201,169,110,.22);
+  border-radius:4px;padding:24px;display:flex;flex-direction:column}
+.cartao h3{font-size:1.1rem;margin-bottom:.5em}
+.cartao p{margin:0 0 1.2em;flex:1}
+.cartao .acoes{margin-top:auto}
+
+/* downloads */
+.downloads{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.dl{display:flex;flex-direction:column;gap:.2em;padding:18px 20px;border:1px solid rgba(201,169,110,.3);border-radius:4px;
+  text-decoration:none;color:var(--texto);background:rgba(5,8,11,.35);transition:border-color .2s,background .2s}
+.dl:hover{border-color:var(--latao);background:rgba(201,169,110,.08)}
+.dl b{font-family:'Cinzel',serif;font-weight:500;letter-spacing:.1em;color:var(--latao2)}
+.dl span{font-size:.9em;color:var(--suave)}
+
+/* créditos */
+.creditos{font-size:.95em}
+.creditos dl{display:grid;grid-template-columns:max-content 1fr;gap:.45em 1.4em;margin:0}
+.creditos dt{font-family:'Cinzel',serif;font-size:.8em;letter-spacing:.12em;color:var(--latao);padding-top:.2em}
+.creditos dd{margin:0}
+footer{padding:30px 0 50px;color:var(--suave);font-size:.85em;text-align:center}
+
+@media (max-width:760px){
+  body{font-size:17px}
+  .hero{grid-template-columns:1fr;gap:28px;padding:36px 0 24px;text-align:center}
+  .hero img{max-width:240px;margin:0 auto;display:block}
+  .hero p.lead{margin-left:auto;margin-right:auto}
+  .acoes{justify-content:center}
+  .creditos dl{grid-template-columns:1fr}
+  .creditos dt{padding-top:.6em}
+}
+.lang{position:absolute;top:16px;right:20px;font-family:'Cinzel',serif;font-size:.75em;letter-spacing:.14em;text-decoration:none;color:var(--latao);border:1px solid rgba(201,169,110,.4);padding:.35em .7em;border-radius:3px}
+.lang:hover{color:var(--latao2);border-color:var(--latao)}
+@media (max-width:760px){.hero{padding-top:64px}}
+</style>
+</head>
+<body>
+<a class="lang" href="../" hreflang="pt-BR" lang="pt-BR">Português</a>
+<div class="wrap">
+
+<header class="hero">
+  <img src="../img/capa.jpg" alt="Cover of the Portuguese edition of Twenty Thousand Leagues Under the Sea, with the opening engraving of the 1871 edition" width="1600" height="2400">
+  <div>
+    <div class="autor">JULES VERNE</div>
+    <h1>Twenty Thousand Leagues Under the Sea</h1>
+    <p class="lead">Step inside Captain Nemo’s <em>Nautilus</em> in 3D, built from the figures Verne gives in the novel, and turn Nemo’s own calculations into forces you can see. The full novel is here too, for now in a Portuguese translation from the 1871 Hetzel edition, with all 111 engravings by Alphonse de Neuville and Édouard Riou.</p>
+    <div class="acoes">
+      <a class="btn cheio" href="../simulador/?lang=en">3D Nautilus</a>
+      <a class="btn" href="../downloads/Physics-of-the-Nautilus-handout.pdf">Classroom handout</a>
+      <a class="btn" href="#book">The book</a>
+    </div>
+  </div>
+</header>
+
+<section id="explore">
+  <h2>Explore</h2>
+  <p class="sub">The <em>Nautilus</em> and the physics behind it.</p>
+  <div class="cartoes">
+    <div class="cartao">
+      <h3>The <em>Nautilus</em> in 3D</h3>
+      <p>A model of Captain Nemo’s submarine built from the measurements in Verne’s text. Rotate it, zoom in, open the compartments, and see the 1871 engraving for each one. Pilot it with the engine, the rudder, the diving planes, and the ballast tanks. Works best on a computer.</p>
+      <div class="acoes"><a class="btn cheio" href="../simulador/?lang=en">Open the simulator</a></div>
+    </div>
+    <div class="cartao">
+      <h3>The physics of the <em>Nautilus</em></h3>
+      <p>In the <b>Physics</b> panel, the figures Nemo gives Aronnax in Part I, chapter XIII, become arrows drawn on the hull: weight, buoyancy, pressure, the force on the planes, thrust, and drag. Seven cards, from Archimedes to engine power, each with a scene to set up and questions for the class. The printable handout has room for answers and an answer key for the teacher.</p>
+      <div class="acoes"><a class="btn cheio" href="../downloads/Physics-of-the-Nautilus-handout.pdf" download>Handout (PDF, A4, 5 pages)</a></div>
+    </div>
+  </div>
+</section>
+
+<section id="book">
+  <h2>The book</h2>
+  <p class="sub">Available in Portuguese. An English edition is in the works.</p>
+  <p>The complete novel, both parts and 47 chapters, translated into Brazilian Portuguese from the French of the 1871 Hetzel edition, with every engraving where it appears in the original. Free to read and share under the <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas/blob/main/LICENSE">MIT License</a>.</p>
+  <div class="downloads">
+    <a class="dl" href="../ler/" lang="pt-BR"><b>Read online</b><span>Portuguese, with a clickable table of contents · works on phones</span></a>
+    <a class="dl" href="../downloads/Vinte-Mil-Leguas-Submarinas.epub" download><b>EPUB</b><span>Portuguese · for Kindle, Kobo, Apple Books, and other readers · 19 MB</span></a>
+    <a class="dl" href="../downloads/Vinte-Mil-Leguas-Submarinas.pdf" download><b>PDF</b><span>Portuguese · A5, ready to read or print · 730 pages · 21 MB</span></a>
+    <a class="dl" href="../#video"><b>Narrated video</b><span>A nine-minute journey through the book, narrated in Portuguese over the 1871 engravings</span></a>
+  </div>
+</section>
+
+<section class="creditos" id="credits">
+  <h2>Credits</h2>
+  <p class="sub">How this work was made.</p>
+  <dl>
+    <dt>Original text</dt><dd>Jules Verne, <em>Vingt mille lieues sous les mers</em>, J. Hetzel edition, 1871, as published by <a href="https://www.gutenberg.org/ebooks/54873">Project Gutenberg (no. 54873)</a>.</dd>
+    <dt>Engravings</dt><dd>111 drawings by Alphonse de Neuville and Édouard Riou, engraved by Hildibrand, from the same edition (public domain).</dd>
+    <dt>3D simulator</dt><dd>Generated by Anthropic’s Claude Opus 5.5 under the direction of Marcelo Rovai, from Verne’s text and the engravings. The English version, including the quotations from Verne, was translated from the French by the same model.</dd>
+    <dt>Translation</dt><dd>The Portuguese translation was made by Claude Opus 5.5 under the direction of Marcelo Rovai.</dd>
+    <dt>Narrated video</dt><dd>Made with Hermes/Qwen4, with narration by OmniVoice based on Marcelo Rovai’s voice, under his direction.</dd>
+    <dt>Project</dt><dd>Marcelo Rovai · <a href="https://mjrovai.com">mjrovai.com</a> · <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas">code on GitHub</a></dd>
+  </dl>
+</section>
+
+</div>
+<footer>Twenty Thousand Leagues Under the Sea · Jules Verne (1870) · 2026 · <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas/blob/main/LICENSE">MIT License</a></footer>
+</body>
+</html>
