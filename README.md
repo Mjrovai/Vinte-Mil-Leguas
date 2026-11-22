@@ -6,12 +6,13 @@
 
 ## In English
 
-Jules Verne's *Twenty Thousand Leagues Under the Sea* in English and Brazilian Portuguese, both translated unabridged from the French of the 1871 Hetzel edition, with all 111 engravings by Alphonse de Neuville and Édouard Riou. The site has the book to read online or download (PDF, EPUB, Markdown), a 3D model of the *Nautilus* with a physics panel, and a narrated video (in Portuguese).
+Jules Verne's *Twenty Thousand Leagues Under the Sea* in English and Brazilian Portuguese, both translated unabridged from the French of the 1871 Hetzel edition, with all 111 engravings by Alphonse de Neuville and Édouard Riou. The site has the book to read online or download (PDF, EPUB, Markdown), a 3D model of the *Nautilus* with a physics panel, and a narrated video in each language.
 
 | | |
 |---|---|
 | [Read online](https://mjrovai.github.io/Vinte-Mil-Leguas/en/read/) | All 47 chapters with every engraving and a clickable table of contents |
 | [EPUB](downloads/Twenty-Thousand-Leagues-Under-the-Sea.epub) · [PDF](downloads/Twenty-Thousand-Leagues-Under-the-Sea.pdf) · [Markdown](downloads/Twenty-Thousand-Leagues-Under-the-Sea.md) | The English edition to download |
+| [Narrated video](https://mjrovai.github.io/Vinte-Mil-Leguas/en/#video) | Eleven minutes over the 1871 engravings, some animated, narrated in English; 720p on the site and 1080p in [Releases](https://github.com/Mjrovai/Vinte-Mil-Leguas/releases/latest) |
 | [3D Nautilus](https://mjrovai.github.io/Vinte-Mil-Leguas/simulador/?lang=en) | A model of the submarine built from the figures in Verne's text, with a Physics panel (buoyancy, pressure, diving planes, thrust, and drag) for the classroom |
 | [The physics of the Nautilus](downloads/Physics-of-the-Nautilus-handout.pdf) | Printable handout for teachers: the seven cards from the Physics panel, with questions and answers |
 
