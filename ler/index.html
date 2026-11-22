@@ -211,6 +211,14 @@
 <h1 class="title">Vinte Mil Léguas Submarinas</h1>
 <p class="author">Júlio Verne</p>
 </header>
+<div class="audio-nota">
+<p><b>Audiolivro.</b> Cada capítulo tem um botão para ouvir a narração, e o player embaixo da tela lembra onde você parou.
+O livro inteiro também pode ser baixado: <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas/releases/download/v1.0/Vinte-Mil-Leguas-Submarinas-audiolivro.m4b">audiolivro .m4b, com capítulos</a>
+ou <a href="https://github.com/Mjrovai/Vinte-Mil-Leguas/releases/download/v1.0/Vinte-Mil-Leguas-Submarinas-audiolivro-mp3.zip">os 48 arquivos MP3 (.zip)</a>.</p>
+<p>Narração na voz de Marcelo Rovai, clonada e gerada localmente com o OmniVoice num Mac; produção com o agente Hermes
+e o modelo DeepSeek V4.1 Flash, sob a direção de Marcelo Rovai.</p>
+</div>
+
 <nav id="TOC" role="doc-toc">
 <h2 id="toc-title">Sumário</h2>
 <ul>
@@ -14729,5 +14737,144 @@ bordas.<a href="#fnref7" class="footnote-back"
 role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section>
+<!-- Audiobook player for the online book (ler/). site_build.py inserts this before </body>,
+     replacing [11, 1027, 846, 744, 976, 878, 1195, 1019, 1118, 942, 1235, 1119, 919, 979, 1580, 1109, 938, 1017, 1186, 1483, 1196, 1571, 1534, 1282, 1184, 1533, 1328, 1675, 1804, 1204, 1480, 1490, 1498, 1543, 1553, 1377, 1551, 1676, 1937, 1088, 1433, 1468, 1513, 1607, 1187, 1235, 989, 182] with the chapter durations in seconds ([0] = opening, [1..47] = chapters). -->
+<style>
+  .ouvir{display:block;margin:-.6em auto 1.6em;font:500 15px/1 'EB Garamond',Georgia,serif;letter-spacing:.03em;
+    color:#5a4320;background:#efe6d2;border:1px solid #c9b48a;border-radius:20px;padding:.5em 1.1em;cursor:pointer}
+  .ouvir:hover,.ouvir.on{background:#5a4320;color:#f7f1e3;border-color:#5a4320}
+  .audio-nota{font-size:.88em;color:#5a4a38;text-align:center;max-width:34em;margin:1.5em auto 2.5em;
+    border:1px solid #d9c9a5;border-radius:4px;padding:.9em 1.1em;background:#f3ead6}
+  .audio-nota p{text-indent:0;text-align:center;margin:.3em 0}
+  .audio-nota a{color:#5a4320}
+  #player{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#2a2118;color:#efe6d2;
+    font:15px/1.2 'EB Garamond',Georgia,serif;box-shadow:0 -4px 18px rgba(0,0,0,.25);
+    padding:8px 14px calc(8px + env(safe-area-inset-bottom));display:none}
+  #player.on{display:block}
+  body.com-player{padding-bottom:9em}
+  #player .lin{display:flex;align-items:center;gap:8px;max-width:46em;margin:0 auto}
+  #player button{background:none;border:1px solid rgba(239,230,210,.35);color:#efe6d2;border-radius:4px;
+    font:inherit;min-width:36px;height:34px;padding:0 8px;cursor:pointer}
+  #player button:hover{border-color:#c9a96e;color:#fff}
+  #player #pPlay{min-width:46px;font-size:18px;background:#c9a96e;color:#2a2118;border-color:#c9a96e}
+  #player .tit{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Cinzel',Georgia,serif;
+    font-size:13px;letter-spacing:.05em;color:#e3cf9f;cursor:pointer}
+  #player .tit small{display:block;font-family:'EB Garamond',Georgia,serif;letter-spacing:0;font-size:12px;color:#bfb196;font-style:italic}
+  #player input[type=range]{flex:1;accent-color:#c9a96e;min-width:0}
+  #player .tempo{font-variant-numeric:tabular-nums;font-size:13px;color:#bfb196;white-space:nowrap}
+  #player .x{border:none;min-width:28px;color:#bfb196}
+  @media (max-width:600px){ #player .so-largo{display:none} #player .lin{gap:6px} }
+</style>
+
+<div id="player" role="region" aria-label="Audiolivro">
+  <div class="lin">
+    <div class="tit" id="pTit" title="Ir para o capítulo"></div>
+    <button id="pVel" title="Velocidade">1×</button>
+    <button class="x" id="pFechar" title="Fechar o player" aria-label="Fechar">✕</button>
+  </div>
+  <div class="lin" style="margin-top:6px">
+    <button id="pAnt" class="so-largo" title="Capítulo anterior" aria-label="Capítulo anterior">⏮</button>
+    <button id="pVolta" title="Voltar 15 segundos">−15</button>
+    <button id="pPlay" aria-label="Tocar">▶</button>
+    <button id="pAvanca" title="Avançar 15 segundos">+15</button>
+    <button id="pProx" class="so-largo" title="Próximo capítulo" aria-label="Próximo capítulo">⏭</button>
+    <input type="range" id="pBarra" min="0" max="1000" value="0" aria-label="Posição no capítulo">
+    <span class="tempo" id="pTempo">0:00</span>
+  </div>
+</div>
+<audio id="pAudio" preload="none"></audio>
+
+<script>
+(() => {
+  const DUR = [11, 1027, 846, 744, 976, 878, 1195, 1019, 1118, 942, 1235, 1119, 919, 979, 1580, 1109, 938, 1017, 1186, 1483, 1196, 1571, 1534, 1282, 1184, 1533, 1328, 1675, 1804, 1204, 1480, 1490, 1498, 1543, 1553, 1377, 1551, 1676, 1937, 1088, 1433, 1468, 1513, 1607, 1187, 1235, 989, 182];
+  const caps = [...document.querySelectorAll('h2.chapter')];        // 47, in reading order = audio 01..47
+  const A = document.getElementById('pAudio'), $ = id => document.getElementById(id);
+  const VELS = [1, 1.25, 1.5, 0.9];
+  const CHAVE = 'leguas-audio';
+  let atual = 0, vel = 1, busca = 0;   // busca: where to jump once the chapter's metadata loads
+  const mmss = s => { s = Math.max(0, Math.floor(s || 0)); const h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), x = String(s % 60).padStart(2, '0');
+    return h ? h + ':' + String(m).padStart(2, '0') + ':' + x : m + ':' + x; };
+  const minutos = s => Math.round(s / 60) + ' min';
+  const nome = n => { const h = caps[n - 1]; return (n <= 24 ? 'Parte I · ' : 'Parte II · ') + h.textContent.trim(); };
+  const arq = n => '../audio/' + String(n).padStart(2, '0') + '.m4a';
+  const ler = () => { try { return JSON.parse(localStorage.getItem(CHAVE)) || null; } catch (e) { return null; } };
+  const gravar = () => { try { localStorage.setItem(CHAVE, JSON.stringify({ n: atual, t: Math.floor(A.currentTime || 0), v: vel })); } catch (e) {} };
+
+  // one button under each chapter title
+  caps.forEach((h, i) => {
+    const b = document.createElement('button');
+    b.className = 'ouvir'; b.dataset.n = i + 1;
+    b.textContent = '▶ Ouvir este capítulo · ' + minutos(DUR[i + 1]);
+    b.onclick = () => (atual === i + 1 && !A.paused) ? A.pause() : tocar(i + 1);
+    h.after(b);
+  });
+
+  function marcar() {
+    document.querySelectorAll('.ouvir').forEach(b => {
+      const n = +b.dataset.n, ativo = n === atual && !A.paused;
+      b.classList.toggle('on', ativo);
+      b.textContent = (ativo ? '❚❚ Pausar' : (n === atual && A.currentTime > 1 ? '▶ Continuar' : '▶ Ouvir este capítulo')) + ' · ' + minutos(DUR[n]);
+    });
+    $('pPlay').textContent = A.paused ? '▶' : '❚❚';
+    $('pPlay').setAttribute('aria-label', A.paused ? 'Tocar' : 'Pausar');
+  }
+
+  const titulo = n => { $('pTit').innerHTML = nome(n) + '<small>Capítulo ' + n + ' de 47 · ' + minutos(DUR[n]) + '</small>'; };
+  function carregar(n, t) {
+    atual = n;
+    A.src = arq(n); A.playbackRate = vel; A.defaultPlaybackRate = vel;
+    titulo(n);
+    $('player').classList.add('on'); document.body.classList.add('com-player');
+    busca = t || 0;
+    if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({
+      title: nome(n), artist: 'Júlio Verne', album: 'Vinte Mil Léguas Submarinas',
+      artwork: [{ src: '../img/capa.jpg', sizes: '600x900', type: 'image/jpeg' }] });
+  }
+  function tocar(n, t) { if (n !== atual || !A.src) carregar(n, t); A.play().catch(() => {}); }
+
+  $('pPlay').onclick = () => A.paused ? A.play().catch(() => {}) : A.pause();
+  $('pVolta').onclick = () => { A.currentTime = Math.max(0, A.currentTime - 15); };
+  $('pAvanca').onclick = () => { A.currentTime = Math.min(A.duration || 1e9, A.currentTime + 15); };
+  $('pAnt').onclick = () => { if (A.currentTime > 5) A.currentTime = 0; else if (atual > 1) tocar(atual - 1); };
+  $('pProx').onclick = () => { if (atual < 47) tocar(atual + 1); };
+  $('pVel').onclick = () => { vel = VELS[(VELS.indexOf(vel) + 1) % VELS.length]; A.playbackRate = vel; A.defaultPlaybackRate = vel;
+    $('pVel').textContent = String(vel).replace('.', ',') + '×'; gravar(); };
+  $('pFechar').onclick = () => { A.pause(); gravar(); $('player').classList.remove('on'); document.body.classList.remove('com-player'); };
+  $('pTit').onclick = () => caps[atual - 1] && caps[atual - 1].scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const barra = $('pBarra');
+  barra.oninput = () => { if (A.duration) A.currentTime = barra.value / 1000 * A.duration; };
+
+  A.addEventListener('loadedmetadata', () => { if (busca) { A.currentTime = busca; busca = 0; } });
+  let ultimo = 0;
+  A.addEventListener('timeupdate', () => {
+    const d = A.duration || DUR[atual] || 0;
+    if (document.activeElement !== barra) barra.value = d ? A.currentTime / d * 1000 : 0;
+    $('pTempo').textContent = mmss(A.currentTime) + ' / ' + mmss(d);
+    if (!busca && Date.now() - ultimo > 5000) { ultimo = Date.now(); gravar(); }
+  });
+  ['play', 'pause'].forEach(e => A.addEventListener(e, () => { marcar(); if (!busca) gravar(); }));
+  A.addEventListener('play', () => titulo(atual));
+  A.addEventListener('ended', () => { if (atual < 47) { tocar(atual + 1); } else { A.currentTime = 0; marcar(); } });
+
+  if ('mediaSession' in navigator) {
+    const ms = navigator.mediaSession;
+    ms.setActionHandler('play', () => A.play()); ms.setActionHandler('pause', () => A.pause());
+    ms.setActionHandler('seekbackward', () => $('pVolta').onclick()); ms.setActionHandler('seekforward', () => $('pAvanca').onclick());
+    ms.setActionHandler('previoustrack', () => $('pAnt').onclick()); ms.setActionHandler('nexttrack', () => $('pProx').onclick());
+  }
+
+  // pick up where the reader stopped: the bar appears paused at the saved spot
+  const s = ler();
+  if (s && s.n >= 1 && s.n <= 47) {
+    vel = VELS.includes(s.v) ? s.v : 1; $('pVel').textContent = String(vel).replace('.', ',') + '×';
+    carregar(s.n, s.t);
+    $('pTit').innerHTML = 'Continuar de onde parou · ' + nome(s.n) + '<small>em ' + mmss(s.t) + ' de ' + mmss(DUR[s.n]) + '</small>';
+    $('pTempo').textContent = mmss(s.t) + ' / ' + mmss(DUR[s.n]);
+    barra.value = DUR[s.n] ? s.t / DUR[s.n] * 1000 : 0;
+  }
+  marcar();
+})();
+</script>
+
 </body>
 </html>
