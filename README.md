@@ -11,7 +11,7 @@ O romance completo em português, traduzido do francês da edição Hetzel de 18
 | | |
 |---|---|
 | [Ler on-line](https://mjrovai.github.io/Vinte-Mil-Leguas/ler/) | Os 47 capítulos com todas as gravuras e sumário clicável |
-| [Nautilus 3D](https://mjrovai.github.io/Vinte-Mil-Leguas/simulador/) | Modelo do submarino a partir das medidas do texto de Verne |
+| [Nautilus 3D](https://mjrovai.github.io/Vinte-Mil-Leguas/simulador/) | Modelo do submarino a partir das medidas do texto de Verne, com um painel de física (empuxo, pressão, planos) para sala de aula |
 | [Versão narrada](https://mjrovai.github.io/Vinte-Mil-Leguas/#video) | Vídeo de nove minutos, em 720p no site e 1080p em [Releases](https://github.com/Mjrovai/Vinte-Mil-Leguas/releases/latest) |
 | [EPUB](downloads/Vinte-Mil-Leguas-Submarinas.epub) · [PDF](downloads/Vinte-Mil-Leguas-Submarinas.pdf) · [Markdown](downloads/Vinte-Mil-Leguas-Submarinas.md) | O livro para baixar |
 

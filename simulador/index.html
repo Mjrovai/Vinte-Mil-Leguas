@@ -77,6 +77,34 @@
   .xi.part{width:calc(100% - 16px);margin-left:16px;font-size:14px;padding:3px 10px;background:transparent;border-color:rgba(201,162,90,.22)}
   .xi.part.on{background:linear-gradient(#6e5524,#3f2f12);border-color:var(--brass)}
   .lbl.prop{border-color:#e6c27a;background:rgba(45,32,10,.85);font-size:10px}
+    /* "A física do Nautilus": teacher's panel in the left slot, live readings and cards */
+  #fisPanel{top:16px;left:16px;width:350px;max-height:calc(100% - 32px);overflow:auto;padding:14px 16px 12px;display:none}
+  #fisPanel p{font-size:14.5px;line-height:1.4;margin:6px 0}
+  .fdash{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:14px;margin:6px 0 4px;padding:8px 10px;background:rgba(0,0,0,.35);border:1px solid rgba(201,162,90,.3);border-radius:6px}
+  .fdash span{opacity:.8}
+  .fdash b{text-align:right;font-weight:600;color:#fff;font-variant-numeric:tabular-nums}
+  .fdash .fsep{grid-column:1/-1;border-top:1px dotted rgba(201,162,90,.3);margin:2px 0}
+  .fk-p{color:#ff8a6a !important} .fk-e{color:#7fd0ff !important} .fk-r{color:#ffd166 !important} .fk-f{color:#b8f28c !important}
+  .fsmall{font-size:12.5px !important;opacity:.65;line-height:1.35 !important}
+  details.card{border:1px solid rgba(201,162,90,.35);border-radius:8px;margin:8px 0;background:rgba(255,255,255,.02)}
+  details.card summary{cursor:pointer;font-family:'Cinzel',serif;font-size:13px;letter-spacing:.08em;color:var(--brass);padding:8px 10px;list-style:none}
+  details.card summary::-webkit-details-marker{display:none}
+  details.card summary::before{content:'▸ ';opacity:.7} details.card[open] summary::before{content:'▾ '}
+  details.card .cb{padding:0 10px 10px}
+  details.card .quote{font-size:14px;margin:4px 0 8px}
+  details.card .exp{width:100%;margin:6px 0 2px}
+  details.card .hint{font-size:13px;font-style:italic;opacity:.8;margin:2px 0 8px}
+  details.ask{margin-top:6px;border-left:2px solid #7fd0ff;padding-left:8px}
+  details.ask summary{cursor:pointer;font-size:14px;list-style:none;color:#cfe9f7}
+  details.ask summary::-webkit-details-marker{display:none}
+  details.ask summary b{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.1em;color:#7fd0ff;margin-right:4px}
+  details.ask .ans{font-size:14px;line-height:1.4;margin-top:4px;opacity:.95}
+  details.ask .ans::before{content:'Resposta: ';font-weight:600;color:#7fd0ff}
+  .fbtn-show{font-size:12px;opacity:.75;margin-top:2px}
+  .flbl{font-family:'EB Garamond',Georgia,serif;font-size:13px;line-height:1.15;color:#fff;background:rgba(5,8,11,.72);border-radius:4px;padding:2px 6px;white-space:nowrap;pointer-events:none;border-left:3px solid currentColor}
+  .flbl i{font-style:normal;color:#fff}
+  body.fis-on #toggleInfo{display:none !important}
+  @media (max-width:760px){ #fisPanel{width:auto;right:16px;max-height:45%;top:56px} }
   @media (max-width:760px){ #xrList{width:auto;right:16px;max-height:40%;top:56px} #xrList.hide{display:none !important} }
   @media (max-width:760px){
     #info{width:auto;right:16px;max-height:40%;font-size:14px}
@@ -123,7 +151,7 @@
   <div class="sec">MANOBRA</div>
   <div style="font-size:14.5px;line-height:1.4;opacity:.9">Horizontal: leme comum na popa, por roda e talhas. Vertical: dois planos inclinados nos flancos, no centro de flutuação, acionados por alavancas; mais os reservatórios de lastro no fundo do casco. Experimente no painel <b>Pilotagem</b>. O medidor de profundidade usa escala comprimida: a cena desce poucos metros, mas o painel chega a ≈ 2 000 m, a profundidade média que Nemo diz atingir com os reservatórios suplementares.</div>
   <div class="sec">COMO EXPLORAR</div>
-  <div style="font-size:14.5px;line-height:1.4;opacity:.9">Arraste para girar, role para aproximar, botão direito para deslocar. Clique nas etiquetas numeradas para ler sobre cada parte. Use <b>Raio-X</b> para ver a disposição interna aproximada.</div>
+  <div style="font-size:14.5px;line-height:1.4;opacity:.9">Arraste para girar, role para aproximar, botão direito para deslocar. Clique nas etiquetas numeradas para ler sobre cada parte. Use <b>Raio-X</b> para ver a disposição interna aproximada. O botão <b>Física</b> mostra o peso, o empuxo, a pressão e a força dos planos, com as contas do capítulo XIII.</div>
   <div style="font-size:12.5px;opacity:.55;margin-top:10px">Modelo procedural baseado no texto de Verne e nas gravuras de Neuville/Riou (1870). Interpretações que não estão no texto: as vigias pequenas do casco, as aletas da popa, o número de pás da hélice e o mastro fixo da bandeira.</div>
   <div style="font-size:12.5px;opacity:.55;margin-top:6px">Modelo gerado pelo Claude Opus 5.5, da Anthropic, sob a direção de Marcelo Rovai.</div>
 </div>
@@ -145,6 +173,7 @@
     <button id="bEngrave" title="Desenha a cena como uma gravura em madeira de 1871">Estilo: gravura</button>
   </div>
   <div class="grp">
+    <button id="bFis" title="Peso, empuxo, pressão e a força dos planos, com as contas do capítulo XIII">Física</button>
     <button id="bXray">Raio-X</button>
     <button id="bLbl">Etiquetas</button>
     <button id="bRot">Auto-girar</button>
@@ -170,6 +199,71 @@
   <div class="note" id="pNote"></div>
 </div>
 <div id="xrList" class="panel"><span class="pclose" data-for="xrList" title="Fechar o painel">✕</span><h1>RAIO-X</h1><div class="sub">Compartimentos e peças citados no livro</div><div class="prow"><button id="bExplode">Explodir</button><button id="bOverview">Visão geral</button></div><div id="xrItems"></div><div style="font-size:12.5px;opacity:.55;margin-top:10px">Clique num item, ou numa etiqueta no modelo, para aproximar e isolar.</div></div>
+<div id="fisPanel" class="panel"><span class="pclose" id="fisX" title="Fechar o painel">✕</span>
+  <h1>FÍSICA</h1>
+  <div class="sub">do <i>Nautilus</i> · Parte I, cap. XIII, “Alguns números”</div>
+  <p>No capítulo XIII, Nemo explica a Aronnax, com números, como o <i>Nautilus</i> flutua, mergulha e manobra. Aqui as contas dele viram forças desenhadas no casco. Mexa no lastro, nos planos e na máquina pelo painel <b>Pilotagem</b> e acompanhe os valores.</p>
+  <div class="fdash">
+    <span class="fk-p">Peso P</span><b id="fP"></b>
+    <span class="fk-e">Empuxo E</span><b id="fE"></b>
+    <span class="fk-r">Resultante R = E − P</span><b id="fR"></b>
+    <span>Água nos reservatórios</span><b id="fW"></b>
+    <span>Densidade média</span><b id="fD"></b>
+    <div class="fsep"></div>
+    <span>Profundidade</span><b id="fH"></b>
+    <span>Pressão da água</span><b id="fA"></b>
+    <span>Em cada cm² do casco</span><b id="fC"></b>
+    <span>Numa janela do salão</span><b id="fJ"></b>
+    <div class="fsep"></div>
+    <span>Velocidade</span><b id="fV"></b>
+    <span>Ângulo dos planos</span><b id="fL"></b>
+    <span class="fk-f">Força nos planos</span><b id="fF"></b>
+  </div>
+  <div class="prow"><button id="bFisArrows" class="on">Setas de força: ligadas</button></div>
+  <p class="fsmall">Para que se vejam, a seta da resultante está desenhada 10 vezes maior que as do peso e do empuxo, e as dos planos, 40 vezes.</p>
+
+  <details class="card" open><summary>1 · Flutuar: Arquimedes</summary><div class="cb">
+    <div class="quote">“Quis que, em equilíbrio na água, ele mergulhasse nove décimos e emergisse somente um décimo.”</div>
+    <p>Um corpo na água recebe um empuxo para cima igual ao peso da água que ele desloca: <b>E = ρ · V<sub>sub</sub> · g</b>. Flutuando, o empuxo equilibra o peso, <b>E = P</b>. O <i>Nautilus</i> pesa 1 356,48 t, então afunda até deslocar 1 356,48 m³ de água: nove décimos dos 1 507,2 m³ do casco.</p>
+    <p>Dito de outro modo: a densidade média do navio, 1 356,48 ÷ 1 507,2 = 0,90 t/m³, é 90 % da densidade da água. Por isso 90 % do casco fica submerso.</p>
+    <button class="exp" data-exp="1">Experimente: o <i>Nautilus</i> flutuando</button>
+    <div class="hint">Os reservatórios estão vazios. Na Pilotagem, suba o lastro devagar até 50 % e veja a parte submersa passar de 90 % a quase 100 %, com E sempre igual a P.</div>
+    <details class="ask"><summary><b>PARA A TURMA</b> Nemo contou 1 m³ de água como 1 t, que é a água doce. Na água do mar (1,025 t/m³), quanto do casco ficaria fora d’água?</summary>
+      <div class="ans">O volume submerso cai para 1 356,48 ÷ 1,025 ≈ 1 323 m³, ou 87,8 % do casco. Ficariam fora d’água cerca de 12 %, não 10 %. A rigor, as contas de Nemo valem para um rio ou um lago.</div></details>
+  </div></details>
+
+  <details class="card"><summary>2 · Mergulhar: o lastro</summary><div class="cb">
+    <div class="quote">“Se os encho de água, o barco, deslocando então mil quinhentas e sete toneladas, ou pesando-as, ficará completamente submerso.”</div>
+    <p>Com o casco todo debaixo d’água, o volume deslocado não muda mais, e o empuxo fica constante: <b>E = 1 507,2 t</b>. O que muda é o peso, com a água que entra nos reservatórios. A resultante <b>R = E − P</b> decide: R &gt; 0, o navio sobe; R = 0, fica onde está; R &lt; 0, desce.</p>
+    <p>Em densidade: o navio sobe se for menos denso que a água e desce se for mais denso.</p>
+    <button class="exp" data-exp="2">Experimente: parado debaixo d’água</button>
+    <div class="hint">A máquina está parada e o lastro em 50 %, o ponto de equilíbrio. Mova o lastro um pouco para cima ou para baixo e observe a seta amarela da resultante.</div>
+    <details class="ask"><summary><b>PARA A TURMA</b> Por que é tão difícil manter o <i>Nautilus</i> parado numa profundidade usando só o lastro?</summary>
+      <div class="ans">Porque o equilíbrio é indiferente. Com R = 0 ele fica onde está, mas qualquer tonelada a mais ou a menos o faz descer ou subir sem parar, já que o empuxo não muda com a profundidade. Por isso Nemo conduz o navio com os planos inclinados e a hélice (cartão 4) e usa o lastro para os ajustes grandes. No mesmo capítulo, ele ainda lembra que a água se comprime um pouco no fundo, e que é preciso compensar com mais peso.</div></details>
+  </div></details>
+
+  <details class="card"><summary>3 · Descer fundo: a pressão</summary><div class="cb">
+    <div class="quote">“Uma atmosfera por trinta pés de água, ou seja, cerca de um quilo por centímetro quadrado.”</div>
+    <p>A pressão cresce com a profundidade: <b>p = p<sub>0</sub> + ρ · g · h</b>. Na água do mar, cada 10 m somam quase 1 atm (1 025 × 9,8 × 10 ≈ 100 000 Pa). Trinta pés franceses são cerca de 9,7 m: a regra de Aronnax está certa.</p>
+    <p>A força sobre uma superfície é <b>F = Δp · A</b>, em que Δp é a diferença entre a pressão da água lá fora e a do ar lá dentro.</p>
+    <button class="exp" data-exp="3">Experimente: mergulho até 1 000 m</button>
+    <div class="hint">O piloto automático leva o <i>Nautilus</i> para baixo. Acompanhe a pressão e a força sobre a janela do salão. Se o fundo do mar estiver mais acima, ele pousa antes.</div>
+    <details class="ask"><summary><b>PARA A TURMA</b> A 1 000 m, que força a água faz sobre uma janela do salão? Neste modelo, ela é uma elipse de 3,0 m × 1,64 m, com área de ≈ 3,9 m².</summary>
+      <div class="ans">Δp = 1 025 × 9,8 × 1 000 ≈ 10 milhões de Pa. F = 10 000 000 × 3,9 ≈ 39 MN, o peso de cerca de 4 000 t: quase três <i>Nautilus</i>. A resposta de Verne são vidros de 21 cm de espessura no centro.</div></details>
+  </div></details>
+
+  <details class="card"><summary>4 · Manobrar: os planos e o leme</summary><div class="cb">
+    <div class="quote">“Se estão inclinados, o Nautilus, segundo a disposição dessa inclinação e sob o impulso de sua hélice, ou afunda segundo uma diagonal tão alongada quanto me convier, ou sobe segundo essa diagonal.”</div>
+    <p>Os planos inclinados e o leme funcionam como asas: a água que passa por eles os empurra. A força cresce com o quadrado da velocidade: <b>F = ½ · ρ · v² · S · C</b>, em que S é a área e C cresce com o ângulo. Parado, v = 0 e não há força: o leme não vira o navio e os planos não o fazem mergulhar.</p>
+    <p class="fsmall">Neste modelo, S ≈ 16 m² (os dois planos) e C ≈ 0,04 por grau, até no máximo 1.</p>
+    <button class="exp" data-exp="4">Experimente: descendo com os planos</button>
+    <div class="hint">O <i>Nautilus</i> anda a 10 nós com os planos a 15°. Passe a máquina para 20 nós e veja a força nos planos ficar quatro vezes maior.</div>
+    <details class="ask"><summary><b>PARA A TURMA</b> A 15°, que velocidade os planos precisam para fazer a mesma força que os 150,72 t de água dos reservatórios principais?</summary>
+      <div class="ans">F = 150,72 × 1 000 × 9,8 ≈ 1,48 MN. v² = 2F ÷ (ρ · S · C) = 2 × 1 480 000 ÷ (1 025 × 16 × 0,6) ≈ 300, então v ≈ 17 m/s, cerca de 34 nós. Os planos servem para conduzir e corrigir; o trabalho pesado é do lastro.</div></details>
+  </div></details>
+
+  <p class="fsmall">Como Verne, contamos 1 m³ de água como 1 t no peso e no empuxo. No lastro, de 0 a 50 % enchem-se os reservatórios principais (150,72 t) e de 50 a 100 % os suplementares (100 t). A pressão usa água do mar (1 025 kg/m³) e g = 9,8 m/s². O simulador move o navio de forma simplificada e com a escala de profundidade comprimida; os números deste painel seguem as contas do livro, para o casco pelo texto.</p>
+</div>
 <div id="hint">Arraste · role · clique nas etiquetas</div>
 
 <script type="importmap">
@@ -1893,6 +1987,129 @@ const xrList=document.getElementById('xrList'), bExp=document.getElementById('bE
     document.getElementById('toggleInfo').textContent=xray?'Raio-X':'Ficha técnica'; syncPanelButtons();
     if(!xray){ explodeTarget=0; explodeK=0; applyExplode(0); isolate(null); focus=null; bExp.classList.remove('on'); setActive(null); } }; }
 bExp.onclick=()=>{ explodeTarget=explodeTarget?0:1; bExp.classList.toggle('on',!!explodeTarget); };
+/* ---------------- "A física do Nautilus": live forces for the classroom (Part I, ch. XIII) ---------------- */
+// Verne's own accounting: with everything aboard the hull weighs 1 356,48 t and floats with a tenth out of the water;
+// the main tanks (150,72 t) bring it to what it displaces fully submerged, 1 507,2 t; the supplementary tanks add 100 t.
+// Like Verne, a cubic metre of water counts as one tonne. The ballast slider maps onto that: 0–50 % fills the main
+// tanks, 50–100 % the supplementary ones, so 50 % is the neutral point here as in the simulation.
+// Pressure uses sea water (1 025 kg/m³). Planes: F = ½ρv²SC with S ≈ 16 m² (both planes of the model), C ≈ 0,04 per degree.
+const FIS={M0:1356.48, TANK:150.72, SUP:100, V:1507.2, RHO:1025, G:9.8, SPL:16, WIN:Math.PI*1.5*0.82, KL:12/1500, KX:10, KF:40};
+let fisOn=false, fisArrowsOn=true, fisT=0;
+const fisPanel=$('fisPanel'), bFis=$('bFis'), bFisArrows=$('bFisArrows');
+const fnum=(x,d=0)=>x.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d}).replace(/\./g,'\u202f');   // 1 356,48, as in the text
+const fMN=t=>fnum(t*1000*FIS.G/1e6,2)+' MN';                // tonnes (mass) to the weight in meganewtons
+function fisState(){
+  const bal=+sBal.value/100;
+  const water=Math.min(bal,0.5)/0.5*FIS.TANK + Math.max(0,bal-0.5)/0.5*FIS.SUP;
+  const P=FIS.M0+water;                                    // weight, in tonnes
+  const floating = sim.depth>-0.3 && P<FIS.V;
+  const E = floating ? P : FIS.V;                          // floating: as much water as it weighs; submerged: its whole volume
+  let R=E-P, N=0;
+  if(sim.grounded && R<0){ N=-R; R=0; }                    // resting on the bottom, the sand carries the excess weight
+  const h = sim.depth<0 ? depthMeters(-sim.depth) : 0;
+  const dp = FIS.RHO*FIS.G*h;                              // Pa above the air inside (1 atm)
+  const v = sim.speed*0.5144, deg = Math.abs(sim.pla*180/Math.PI);
+  const C = Math.min(1, 0.04*deg);
+  const Fp = 0.5*FIS.RHO*v*v*FIS.SPL*C;                    // N, both planes together
+  return {water,P,E,R,N,floating,frac:P/FIS.V,h,dp,v,deg,Fp,down:sim.pla>0};
+}
+// thick arrows drawn over everything (shaft + head), with a label at the tip
+const fisG=new THREE.Group(); fisG.visible=false; scene.add(fisG);
+const fisPlaneG=new THREE.Group(); fisPlaneG.visible=false; nautilus.add(fisPlaneG);
+function fisArrow(color, parent, text){
+  const g=new THREE.Group(), m=new THREE.MeshBasicMaterial({color, depthTest:false, depthWrite:false, transparent:true, opacity:0.95, fog:false, toneMapped:false});
+  const shaft=new THREE.Mesh(new THREE.CylinderGeometry(0.28,0.28,1,12).translate(0,0.5,0), m);
+  const head=new THREE.Mesh(new THREE.ConeGeometry(0.9,1,16).translate(0,0.5,0), m);
+  shaft.renderOrder=head.renderOrder=999; g.add(shaft,head); parent.add(g);
+  const el=document.createElement('div'); el.className='flbl'; el.style.color='#'+new THREE.Color(color).getHexString();
+  const lbl=new CSS2DObject(el); lbl.visible=false; parent.add(lbl);
+  return {g,shaft,head,lbl,el,text};
+}
+// point the arrow up (dir>0) or down from origin o, with length len (scene metres)
+function fisSet(a, o, dir, len, show){
+  const vis = show && len>0.15;
+  a.g.visible=vis; a.lbl.visible=vis;
+  if(!vis) return;
+  const hd=Math.min(2.2, len*0.45);
+  a.g.position.copy(o); a.g.rotation.set(dir>0?0:Math.PI,0,0);
+  a.shaft.scale.y=Math.max(0.01,len-hd); a.head.scale.set(1,hd,1); a.head.position.y=len-hd;
+  a.lbl.position.set(o.x, o.y+dir*(len+1.2), o.z);
+}
+const fA={P:fisArrow(0xff8a6a,fisG), E:fisArrow(0x7fd0ff,fisG), R:fisArrow(0xffd166,fisG)};
+const fPl=[1,-1].map(s=>({s, a:fisArrow(0xb8f28c,fisPlaneG)}));
+const _o=new THREE.Vector3();
+function fisArrows(s){
+  const show = fisOn && fisArrowsOn;
+  fisG.visible=fisPlaneG.visible=show;
+  const c=nautilus.position, h=sim.heading, ax=new THREE.Vector3(Math.cos(h),0,-Math.sin(h));
+  fisSet(fA.P, c, -1, s.P*FIS.KL, show);
+  fisSet(fA.E, c, 1, s.E*FIS.KL, show);
+  _o.copy(c).addScaledVector(ax,-16);                      // the resultant beside them, toward the stern
+  fisSet(fA.R, _o, Math.sign(s.R)||1, Math.abs(s.R)*FIS.KL*FIS.KX, show);
+  // planes: the force is perpendicular to the hull, down when they are set to dive (local frame of the boat)
+  const ft=s.Fp/(1000*FIS.G);
+  for(const p of fPl){ _o.set(2,-0.2,p.s*(hullR(2)+1.8)); fisSet(p.a, _o, s.down?-1:1, Math.min(30, ft/2*FIS.KL*FIS.KF), show); if(p.s<0) p.a.lbl.visible=false; }
+}
+function fisUpdate(dt){
+  if(!fisOn) return;
+  const s=fisState();
+  fisArrows(s);
+  fisT-=dt; if(fisT>0) return; fisT=0.2;
+  $('fP').textContent=fnum(s.P)+' t · '+fMN(s.P);
+  $('fE').textContent=fnum(s.E)+' t · '+fMN(s.E);
+  $('fR').textContent = s.N>0 ? '0 (o fundo sustenta '+fnum(s.N)+' t)'
+    : Math.abs(s.R)<0.5 ? '0 · equilíbrio' : (s.R>0?'↑ ':'↓ ')+fnum(Math.abs(s.R))+' t · '+fMN(Math.abs(s.R));
+  $('fW').textContent=fnum(s.water,1)+' t';
+  $('fD').textContent=fnum(s.P/FIS.V,3)+' t/m³'+(s.floating?' · '+fnum(s.frac*100)+' % submerso':'');
+  $('fH').textContent=fnum(s.h)+' m';
+  $('fA').textContent=fnum(1+s.dp/101325,1)+' atm';
+  $('fC').textContent=fnum(s.dp/98066.5,1)+' kg';
+  const fj=s.dp*FIS.WIN;
+  $('fJ').textContent=fnum(fj/1e6,1)+' MN ≈ '+fnum(fj/(1000*FIS.G))+' t';
+  $('fV').textContent=fnum(sim.speed)+' nós · '+fnum(s.v,1)+' m/s';
+  $('fL').textContent=fnum(s.deg)+'°'+(s.deg>0.5?(s.down?' (mergulhar)':' (subir)'):'');
+  $('fF').textContent=fnum(s.Fp/1000)+' kN ≈ '+fnum(s.Fp/(1000*FIS.G),1)+' t';
+  fA.P.el.innerHTML='<i>Peso '+fnum(s.P)+' t</i>';
+  fA.E.el.innerHTML='<i>Empuxo '+fnum(s.E)+' t</i>';
+  fA.R.el.innerHTML='<i>Resultante '+fnum(Math.abs(s.R))+' t (×10)</i>';
+  fPl.forEach((p,i)=>p.a.el.innerHTML = i ? '' : '<i>Planos '+fnum(s.Fp/(1000*FIS.G),1)+' t (×40)</i>');
+}
+// the panel takes the left slot, like the X-ray list: opening one closes the other
+function setFis(on){
+  fisOn=on; bFis.classList.toggle('on',on); fisPanel.style.display=on?'block':'none'; document.body.classList.toggle('fis-on',on);
+  if(on && xray) bX.click();
+  info.style.display = on||xray ? 'none' : '';
+  if(on){ fisT=0; fisUpdate(0); } else fisArrows({P:0,E:0,R:0,Fp:0});
+}
+bFis.onclick=()=>setFis(!fisOn);
+$('fisX').onclick=()=>setFis(false);
+bX.addEventListener('click',()=>{ if(xray && fisOn){ fisOn=false; bFis.classList.remove('on'); fisPanel.style.display='none'; document.body.classList.remove('fis-on'); fisArrows({P:0,E:0,R:0,Fp:0}); } });
+bFisArrows.onclick=()=>{ fisArrowsOn=!fisArrowsOn; bFisArrows.classList.toggle('on',fisArrowsOn);
+  bFisArrows.textContent='Setas de força: '+(fisArrowsOn?'ligadas':'desligadas'); };
+// broadside view, so the vertical forces read clearly
+function fisCam(){
+  focus=null; const c=nautilus.position, h=sim.heading;
+  controls.target.set(c.x, c.y, c.z);
+  camera.position.set(c.x+Math.sin(h)*95, c.y+(env==='under'?3:10), c.z+Math.cos(h)*95); keepCamUnder();
+}
+// "Experimente": set the boat up for each card
+function fisSetup(e, depth, bal, spd, pla=0){
+  setAutoDive(false);
+  if(!propOn) bShip.click();
+  sSpd.value=spd; sRud.value=0; sPla.value=pla; sBal.value=bal;
+  Object.assign(sim,{depth, vy:0, pitch:0, grounded:false, speed:spd, rud:0, pla:pla*Math.PI/180});
+  const y0=nautilus.position.y; switchEnv(e,y0); prevDepth=sim.depth;
+  note();
+  if(!fisArrowsOn) bFisArrows.click();
+  fisCam();
+}
+const FIS_EXP={
+  1:()=>fisSetup('surface', 0, 0, 0),
+  2:()=>fisSetup('under', -5, 50, 0),
+  3:()=>{ fisSetup('under', -4, 50, 12); sDive.value=1000; showDive(); setAutoDive(true); },
+  4:()=>fisSetup('under', -5, 50, 10, 15),
+};
+fisPanel.querySelectorAll('[data-exp]').forEach(b=>b.onclick=()=>FIS_EXP[b.dataset.exp]());
 // X-ray list: deck, then compartments from bow to stern with their parts, then the bottom of the hull
 const xrItemsEl=document.getElementById('xrItems');
 let activeBtn=null;
@@ -2013,7 +2230,7 @@ const engr = { on:false };
 function tick(){
   const dt=Math.min(clock.getDelta(),0.05), t=clock.elapsedTime;
   waterUniforms.uTime.value=t; beamMat.uniforms.uTime.value=t;
-  autoPilot(dt); const vrel = stepSim(dt,t); autoEnv(); updateSound(dt);
+  autoPilot(dt); const vrel = stepSim(dt,t); autoEnv(); updateSound(dt); fisUpdate(dt);
   // the boat stays at the origin and the sea moves past it: waves, sea floor, light shafts, particles
   const k=sim.speed*0.5144*dt;                         // knots -> m/s, 1 scene unit = 1 m
   travel.x+=fwd.x*k; travel.z+=fwd.z*k; waterUniforms.uOff.value.set(travel.x,travel.z); moveSeabed();
