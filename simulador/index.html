@@ -120,10 +120,10 @@
     #grav img{max-height:28vh}
   }
 </style>
-<style>#voltar-site{position:fixed;z-index:50;font:500 13px/1 "EB Garamond",Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px}</style><style>@media (max-width:760px){#voltar-site{top:56px !important;right:auto !important;left:16px}#voltar-galeria{top:56px !important;right:16px !important}#info,#fisPanel,#xrList{top:96px !important}}</style>
+<style>#voltar-site{position:fixed;z-index:50;font:500 13px/1 "EB Garamond",Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px}</style><style>@media (max-width:760px){#voltar-site{top:56px !important;right:auto !important;left:16px}#voltar-galeria{top:56px !important;right:16px !important}#voltar-video{top:56px !important;right:auto !important;left:50%;transform:translateX(-50%)}#info,#fisPanel,#xrList{top:96px !important}}</style>
 </head>
 <body>
-<a id="voltar-site" href="../" style="top:16px;right:16px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">← Início</a><a id="voltar-galeria" href="https://mjrovai.github.io/simuladores-interativos/?lang=pt" style="position:fixed;z-index:50;top:52px;right:16px;font:500 13px/1 'EB Garamond',Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">Simuladores ↗</a>
+<a id="voltar-site" href="../" style="top:16px;right:16px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">← Início</a><a id="voltar-galeria" href="https://mjrovai.github.io/simuladores-interativos/?lang=pt" style="position:fixed;z-index:50;top:52px;right:16px;font:500 13px/1 'EB Garamond',Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">Simuladores ↗</a><a id="voltar-video" href="https://youtu.be/-ylA_IhUldg" target="_blank" rel="noopener" style="position:fixed;z-index:50;top:88px;right:16px;font:500 13px/1 'EB Garamond',Georgia,serif;letter-spacing:.04em;text-decoration:none;padding:.45em .8em;border-radius:3px;background:rgba(5,8,11,.75);color:#c9a96e;border:1px solid rgba(201,169,110,.5)">▶ Vídeo</a>
 <div id="load">NAUTILUS · MOBILIS IN MOBILI</div>
 <canvas id="c"></canvas>
 <div id="labels"></div>
@@ -345,6 +345,8 @@ if(LANG==='en'){
   if(vs){ vs.href='../en/'; vs.textContent='← Home'; }
   const vg=document.getElementById('voltar-galeria');   // link to the simulator gallery, added at build
   if(vg){ vg.href=vg.href.replace('lang=pt','lang=en'); vg.textContent='Simulators ↗'; }
+  const vv=document.getElementById('voltar-video');   // demo video link, added at build (narrated in Portuguese)
+  if(vv){ vv.textContent='▶ Video (PT)'; vv.title='Video walkthrough, narrated in Portuguese'; }
   document.querySelectorAll('a[href$="Fisica-do-Nautilus-folha.pdf"]').forEach(a=>{ a.href=a.href.replace('Fisica-do-Nautilus-folha.pdf','Physics-of-the-Nautilus-handout.pdf'); });
 }
 { const b=document.getElementById('bLang'); b.textContent=Lg('English','Português');
