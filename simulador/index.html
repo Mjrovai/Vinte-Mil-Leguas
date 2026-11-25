@@ -345,8 +345,8 @@ if(LANG==='en'){
   if(vs){ vs.href='../en/'; vs.textContent='← Home'; }
   const vg=document.getElementById('voltar-galeria');   // link to the simulator gallery, added at build
   if(vg){ vg.href=vg.href.replace('lang=pt','lang=en'); vg.textContent='Simulators ↗'; }
-  const vv=document.getElementById('voltar-video');   // demo video link, added at build (narrated in Portuguese)
-  if(vv){ vv.textContent='▶ Video (PT)'; vv.title='Video walkthrough, narrated in Portuguese'; }
+  const vv=document.getElementById('voltar-video');   // demo video link, added at build; the English page gets the English video
+  if(vv){ vv.href='https://youtu.be/0bpw6ibMwXY'; vv.textContent='▶ Video'; vv.title='Video walkthrough (in English)'; }
   document.querySelectorAll('a[href$="Fisica-do-Nautilus-folha.pdf"]').forEach(a=>{ a.href=a.href.replace('Fisica-do-Nautilus-folha.pdf','Physics-of-the-Nautilus-handout.pdf'); });
 }
 { const b=document.getElementById('bLang'); b.textContent=Lg('English','Português');
